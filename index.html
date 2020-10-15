@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style>
+        h1 {
+            font-family: 'Oswald', sans-serif;
+            background: #51080a;
+            color: #fff;
+            font-size: 20px;
+            padding: 10px;
+        }
+
+        h2 {
+            margin-top: 40px;
+            font-size: 1.5em;
+            border-bottom: 1px solid #aaa;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        h3 {
+            margin-top: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        h4 {
+            margin-top: 10px;
+            font-size: 1.3em;
+        }
+
+        h5 {
+            font-family: 'Oswald', sans-serif;
+            color: #FAFAFA;
+            background-color: #51080a;
+            font-weight: 100;
+            font-size: 10px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            padding-left: 10px;
+            margin: 0;
+        }
+
+        img {
+            display: block;
+            max-width: 100%;
+            margin: 20px 0;
+
+        }
+
+        img.displayed {
+            display: block;
+            margin-left: auto;
+            margin-right: auto
+        }
+
+        body {
+            padding: 0;
+            font-size: 13px;
+        }
+
+        #content {
+            padding: 8px;
+        }
+
+        .about {
+            display: none;
+        }
+
+        @media (min-width: 700px) {
+
+            #sidebar {
+                width: 250px;
+                padding: 10px;
+                height: 100%;
+                position: fixed;
+                left: 0;
+                top: 0;
+                background: #ddd;
+            }
+
+            .about {
+                position: fixed;
+                bottom: 0;
+                right: 0;
+                left: 250px;
+                padding: 5px;
+                background: #fff;
+                border-top: 1px solid #ddd;
+                text-align: center;
+                display: block;
+            }
+
+            h1 {
+                margin: -10px -10px 0 -10px;
+            }
+
+            #content {
+                margin-left: 270px;
+                padding: 0;
+            }
+
+        }
+
+        .about a {
+            color: #51080a;
+        }
+
+        #sidebar ul.nav {
+            width: 100%;
+        }
+
+        #sidebar ul.nav > li {
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+            width: 100%;
+        }
+
+        #sidebar ul.nav > li > a {
+            font-weight: bold;
+        }
+
+        #sidebar ul.nav > li ul {
+            padding: 0 0 0 5px;
+            margin: 0;
+            list-style: none;
+        }
+
+        #myBtn {
+            display: none;
+            position: fixed;
+            bottom: 40px;
+            right: 10px;
+            z-index: 99;
+        }
+    </style>
+    <title>Amazon Pay Checkout v2 für XT:Commerce 3 - Integrationsanleitung</title>
+</head>
+<body>
+<button onclick="topFunction()" id="myBtn" class="btn btn-primary" title="Go to top">Nach oben</button>
+
+<div class="wrapper">
+    <nav id="sidebar">
+        <h1>Amazon Pay Checkout v2 für XT:Commerce 3 - Integrationsanleitung</h1>
+        <div style="margin-bottom:10px; padding:5px;">
+            <a href="https://www.alkim.de" style="color:#51080a;" target="_blank">powered by alkim media</a>
+        </div>
+        <ul class="nav">
+            <li>
+                <a href="#anchor_1">
+                    1. Einleitung
+                </a>
+                <ul>
+                    <li>
+                        <a href="#anchor_11">
+                            1.1 Features
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#anchor_12">
+                            1.2 Unterschiede zum alten Plugin
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#anchor_13">
+                            1.3 Überblick Zahlungsablauf
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#anchor_14">
+                            1.4 Download
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#anchor_2">
+                    2. Migration vom alten Plugin
+                </a>
+                <ul>
+                    <li>
+                        <a href="#anchor_21">
+                            2.1 Allgemeine Hinweise
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#anchor_22">
+                            2.2 Empfohlenes Vorgehen
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#anchor_3">
+                    3. Plugin-Setup
+                </a>
+                <ul>
+                    <li>
+                        <a href="#anchor_31">
+                            3.1 Systemvoraussetzungen
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#anchor_32">
+                            3.2 Vor der Installation
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#anchor_33">
+                            3.3 Plugin-Installation
+                        </a>
+                        <ul>
+                            <li>
+                                <a href="#anchor_331">
+                                    3.3.1 Installationsprozess
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#anchor_34">
+                            3.4 Amazon Pay Account anlegen
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#anchor_35">
+                            3.5 Einrichtung in Sellercentral und Zugangsdaten
+                        </a>
+                        <ul>
+                            <li>
+                                <a href="#anchor_351">
+                                    3.5.1 Login-Einstellungen
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#anchor_352">
+                                    3.5.2 MWS Zugangsdaten
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#anchor_353">
+                                    3.5.3 IPN (Sofortbenachrichtigung)
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#anchor_354">
+                                    3.5.4 Zugangsdaten im XT:Commerce 3 Plugin hinterlegen
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                <a href="#anchor_36">
+                    3.6. Weitere Plugin-Konfiguration
+                </a>
+            </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#anchor_4">
+                    4. Ablauf von Bestellung und Zahlung
+                </a>
+                <ul>
+                    <li>
+                        <a href="#anchor_41">
+                            4.1 Das Bezahlen über den Amazon Button
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#anchor_42">
+                            4.2 Eine Bestellung durchführen
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#anchor_43">
+                            4.3 Zahlungsautorisierung
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#anchor_44">
+                            4.4 Zahlbetrag erfassen
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#anchor_45">
+                            4.5 Rückerstattung von bestellten Artikeln
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#anchor_5">
+                    5. Loslegen
+                </a>
+            </li>
+            <li>
+                <a href="#anchor_6">
+                    6. Häufige Fehler
+                </a>
+            </li>
+            <li>
+                <a href="#anchor_7">
+                    7. FAQ
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div id="content">
+        <!-- <div class="alert alert-info" style="margin-top: 10px;">
+            <div><b>Hinweis</b></div>
+            Wenn du aktuell Probleme mit diesem Fehler hast, beachte bitte Punkt <a href="#anchor_75">7.5</a>
+            <img src="images/cookie_error.jpg" />
+        </div> -->
+        <h2 id="anchor_1">
+            1. Einleitung
+        </h2>
+        <h3 id="anchor_11">1.1 Features</h3>
+        <div>
+        ✓ Dem Kunden wird es ermöglicht mit den Lieferadressdaten und Zahlungsarten aus deren Amazon Konto zu bezahlen <br/>
+        ✓ Für die Artikeldetail- und Kategorieseiten wird eine Expresskauf-Funktionen zur verfügung gestellt. <br/>
+        ✓ Es existiert ein verkürzter Amazon Pay-Checkout<br/>
+        </div>
+        <h3 id="anchor_12">1.2 Unterschiede zum alten Plugin</h3>
+        <h3 id="anchor_13">1.3 Überblick Zahlungsablauf </h3>
+        <div>
+            Für die Einrichtung des Amazon Pay Plugins für XT:Commerce 3 ist es wichtig, zu verstehen, dass sich der
+            Zahlungsablauf in einem Detail etwas anders verhält als bei herkömmlichen Zahlungsanbietern.
+            Statt eines direkten Zahlungseinzugs findet vorerst eine Autorisierung statt, die für dich als Händler eine
+            Zahlungsgarantie bedeutet. Der eigentliche Zahlungseinzug ist ein eigener Schritt, der normalerweise bei
+            Versand der Ware ausgelöst werden sollte.<br/>
+            Umfangreiche Informationen findest du auf der <a href="https://pay.amazon.com/de/merchant" target="_blank">Website
+            von Amazon Pay</a>.
+        </div>
+        <h3 id="anchor_14">1.4 Download</h3>
+        <h2 id="anchor_2">
+            2. Migration vom alten Plugin
+        </h2>
+        <h3 id="anchor_21">2.1 Allgemeine Hinweise</h3>
+        <h3 id="anchor_22">2.2 Empfohlenes Vorgehen</h3>
+
+        <h2 id="anchor_3">
+            3. Plugin-Setup
+        </h2>
+        <h3 id="anchor_31">3.1 Systemvoraussetzungen</h3>
+        <div>
+        ✓ XT:Commerce 3 <br/>
+        ✓ PHP 5.6 oder höher <br/>
+        Hinweis: Das Plugin wurde für das Template "xtc4" entwickelt. Wenn Sie ein anderes Template verwenden, sind ggf. Anpassungen an der Konfiguration und zusätzliche Individualisierungen notwendig. Wenden Sie sich ggf. an Ihren Template-Hersteller.
+        </div>
+        <h3 id="anchor_32">3.2 Vor der Installation</h3>
+        <div>
+        Erstelle bitte ein Backup Deines Shops, oder nutze (noch besser) eine separate Entwicklungskopie, bevor Du mit der Installation startest.
+            <br/><br/>
+        </div>
+
+        <h3 id="anchor_33">3.3 Plugin-Installation</h3>
+        <h4 id="anchor_331">3.3.1 Installationsprozess</h4>
+        <div>
+            Du erhältst das Amazon Pay Plugin für XT:Commerce 3 am einfachsten direkt über die <a
+                href="https://www.alkim.de/Amazon-Pay-and-Login-with-Amazon.html" target="_blank">alkim media Amazon Pay Webseite</a>.
+            <br/><br/>
+        </div>
+        <div>
+            Gehe im Administrationsbereich auf den Menüpunkt <i>Module</i> » <i>Zahlungsoptionen</i>. Dort angekommen aktiviere den Eintrag "Amazon Pay". Anschließend klickst Du bitte auf den Button Installieren.<br />
+            Das Modul für Amazon Pay ist nun installiert. Du kannst nun mit Konfigurieren fortfahren.
+        </div>
+
+
+        <h3 id="anchor_34">3.4 Amazon Pay Account anlegen</h3>
+        <div>
+            Wenn du noch keinen Amazon-Pay Account hast, kannst du dich <a
+                href="https://payments-eu.amazon.com/register?spId=A1SGXK19QKIYNB&marketplaceId=A53RDEWN57UU5&language=de_DE&locale=de_DE&source=SPPD&ref=sp_de_ap_np_sp_AkPm_xx_xx_xx_Man"
+                target="_blank">hier registrieren</a>.
+        </div>
+        <h3 id="anchor_35">3.5 Einrichtung in Sellercentral und Zugangsdaten</h3>
+        <h4 id="anchor_351">3.5.1 Login-Einstellungen</h4>
+        <div>
+            Wechsle hierfür in die Integration Central:
+            <img src="images/integration_central_link.png"/>
+            <br />
+            Ganz unten findest du die Möglichkeit, deine Client-IDs und Store-IDs zu verwalten. Lege dort eine neue Konfiguration an und fülle die
+            vorhandenen Felder entsprechend deinen Anforderungen aus.
+            Zwei Angaben sind für die Integration mit plentymarkets obligatorisch, nämlich "Zulässige
+            JavaScript-Ursprünge" und
+            "Zulässige Rückleitungs-URLs". Diese sind entsprechend des folgenden Screenshots auszufüllen. Ersetze dafür
+            www.domain.com mit deiner Shop-Domain:
+            <div>
+                <b>Zulässige JavaScript-Ursprünge:</b> https://www.domain.com/
+            </div>
+            <div>
+                <b>Zulässige Rückleitungs-URLs:</b> https://www.domain.com/amazon-login-processing/ und https://www.domain.com/amazon-login-processing (bitte mit und ohne den Slash am Ende, um Fehler bei veränderter Shop-Konfiguration zu vermeiden)
+            </div>
+            <img src="images/integration_central_form.png"/>
+            <div>
+                Weitere Hilfe dazu gibt es in <a
+                    href="https://images-na.ssl-images-amazon.com/images/G/03/amazonservices/payments/website/AmazonPay_ClientID_DE._V532164949_.pdf"
+                    target="_blank">diesem Dokument von Amazon</a>.
+            </div>
+        </div>
+        <h4 id="anchor_352">3.5.2 MWS Zugangsdaten</h4>
+        <div>
+            Wähle aus der Dropdown-Liste <i>Amazon Pay</i> aus.<br/>
+            Erzeuge danach unter <i>Integration</i> » <i>MWS Access Key</i> deine MWS Zugangsdaten.
+        </div>
+        <h4 id="anchor_353">3.5.3 IPN (Sofortbenachrichtigung)</h4>
+        <div>
+            Die Einrichtung der IPN (Instant Payment Notification = Sofortbenachrichtigung) ermöglicht es, dass dein
+            plentymarkets-System in Echtzeit über Statusänderungen einer Zahlung informiert wird.
+            Wähle dazu den Menüpunkt <i>Einstellungen</i> » <i>Integrationseinstellungen</i> und hinterlege bei
+            "Händler-URL"
+            https://www.domain.com/amazon-ipn/ (www.domain.com bitte durch deine Shop-Domain ersetzen)
+            <img src="images/ipn.jpg"/>
+        </div>
+        <h4 id="anchor_354">3.5.4 Zugangsdaten im XT:Commerce 3 Plugin hinterlegen</h4>
+        <div>
+            Nachdem zu alles konfiguriert hast, findest du Deine Zugangsdaten unter <i>Integration</i> » <i>MWS Access
+            Key</i>.
+            <img src="images/credentials.jpg"/>
+            Diese sind entsprechend in die Plugin-Konfiguration zu kopieren. Bitte achte dabei darauf, dass du nicht
+            versehentlich Leerzeichen am Anfang oder Ende mit kopierst.
+        </div>
+        <h3 id="anchor_36">3.6 Weitere Plugin-Konfiguration</h3>
+        <div>
+            Die weiteren Konfigurationsmöglichkeiten im XT:Commerce 3 Plugin ermöglichen Dir, das Verhalten des Plugins
+            an Deine Prozesse anzupassen.
+
+        </div><br />
+        <dl>
+            <dt>
+                Amazon Pay aktivieren
+            </dt>
+            <dd>
+                Erlaubt es, das Plugin vorübergehend zu deaktivieren
+            </dd>
+            <dt>
+                Anzeigereihenfolge
+            </dt>
+            <dd>
+                Erlaubt es, die Reihenfolge der Anzeige festzulegen. Die kleinste Ziffer wird zuerst angezeigt.
+            </dd>
+            <dt>
+                Live/Sandbox
+            </dt>
+            <dd>
+                Schaltet das Plugin in den Sandbox-Modus. Dabei werden keine echten Zahlungen ausgelöst. Bitte beachte,
+                dass es für den Sandbox-Modus in Sellercentral eigene Konfigurationsmöglichkeiten gibt und du zum Testen keine
+                echten Amazon-Accounts verwenden kannst, sondern dir einen eigenen Testaccount in Sellercentral anlegen musst.
+            </dd>
+            <dt>
+                Debug-Modus (Buttons verstecken)
+            </dt>
+            <dd>
+                Versteckt die Buttons im Frontend mit CSS (display:none), sodass du im Frontend testen kannst, ohne dass
+                deine Kunden beeinträchtigt werden.
+            </dd>
+            <dt>
+                Erlaubte Zonen
+            </dt>
+            <dd>
+                Gebe einzeln die Zonen an, welche für dieses Modul erlaubt sein sollen. (z.B. AT,DE (wenn es leer bleibt, dann werden alle Zonen erlaubt))
+            </dd>
+            <dt>
+                Farbe des Amazon-Checkout-Buttons
+            </dt>
+            <dd>
+                Hier kannst Du die Farbe des Amazon-Checkout-Buttons wählen.
+            </dd>
+            <dt>
+                Farbe des Amazon-Login-Buttons
+            </dt>
+            <dd>
+                Hier kannst Du die Farbe des Amazon-Login-Buttons wählen.
+            </dd>
+            <dt>
+                Status für autorisierte Bestellungen
+            </dt>
+            <dd>
+                Hier kannst du einen Bestellstatus wählen. Diese wird nach erfolgreicher Autorisierung
+                gesetzt, um zu signalisieren, dass die Ware versendet werden kann.
+
+            </dd>
+            <dt>
+                Status für Bestellungen mit abgelehnter Zahlung
+            </dt>
+            <dd>
+                Hier kannst du einen Bestellstatus wählen. Diese wird bei vollständiger Ablehnung der Zahlung gesetzt. In diesem Fall solltest du Kontakt mit dem Kunden aufnehmen, um einen alternativen Zahlungsweg
+                z.B. per Überweisung anzubieten. (siehe hierzu auch <a href="#anchor_4">4.</a>)
+
+            </dd>
+            <dt>
+                Status für Bestellungen mit eingezogener Zahlung
+            </dt>
+            <dd>
+                Hier kannst du einen Bestellstatus wählen. Diese wird bei eingezogener Zahlung gesetzt.
+            </dd>
+            <dt>
+                Art des Zahlungseinzugs
+            </dt>
+            <dd>
+                Hiermit kannst du einstellen, wann der Zahlungseinzug durchgeführt werden soll. In den allermeisten
+                Fällen ist der Einzug per Ereignisaktion zum Zeitpunkt des Versands die beste Möglichkeit (siehe <a
+                    href="#anchor_32">3.2</a>).<br/>
+                Bei Download-Produkten empfiehlt sich der Einzug direkt nach Autorisierung.
+            </dd>
+            <dt>
+               Status für versendete Bestellungen
+            </dt>
+            <dd>
+                Hier kannst du einen Bestellstatus wählen. Diese wird nach dem Versand der Ware gesetzt.
+            </dd>
+        </dl>
+
+
+
+
+        <h2 id="anchor_5">5. Loslegen</h2>
+        <div>
+            Damit sollte alles erledigt sein, um deinen Kunden ein reibungsloses Amazon Pay Einkaufserlebnis zu
+            bieten.
+            <br/>
+            Wenn du Fragen, Probleme oder Anregungen hast, kontaktiere uns am besten im plentymarkets Forum in
+            <a
+                    href="https://forum.plentymarkets.com/c/non-plenty-plugins/amazon-pay" target="_blank">dieser
+                Kategorie</a>.
+        </div>
+
+        <h2 id="anchor_6">6. Häufige Fehler</h2>
+        <h3 id="anchor_61">6.1 <i>{"error":{"message":"Internal Server error"}}</i> bei Checkout</h3>
+        <div>
+            Dieser Fehler kann zwei mögliche Ursachen haben. Bitte prüfe als erstes, ob du wirklich alle
+            Zugangsdaten
+            korrekt kopiert hast (siehe <a href="#anchor_354">3.5.4</a>). Wenn du wirklich sicher bist, dass
+            hier alles
+            korrekt ist, stelle bitte sicher, dass dein Amazon Pay Account eine UST-Id enthält. Diese ist
+            notwendig,
+            damit du die Rechnungsadresse des Kunden erhältst, die für den Checkout benötigt wird.
+        </div>
+        <h3 id="anchor_62">6.2  "Die gewählte Zahlungsweise ist für diesen Einkauf nicht verfügbar. Wählen Sie eine andere Zahlungsweise"</h3>
+        <div>
+            Wenn diese Fehlermeldung von Amazon zurückgegeben wird, hast du vermutlich die Einstellugen unter <a href="#anchor_351">3.5.1</a> nicht richtig vorgenommen. Bitte überprüfe diese noch einmal.
+        </div>
+        <h2 id="anchor_7">7. FAQ</h2>
+        <h4>Warum werden Aufträge nicht als "bezahlt" markiert, wenn ein Kunde mit Amazon Pay kauft?</h4>
+        <div>Beim normalen Betrieb von Amazon Pay findet während des Checkouts eine Authorisierung des entsprechenden Betrags statt, d.h. du bekommst von Amazon eine Zahlungsgarantie, aber es ist noch kein Geld geflossen. Deshalb können wir den Auftrag auch nicht als bezahlt markieren, ohne dass die Gefahr besteht, dass du später nicht merkst, wenn tatsächlich ein Zahlungseinzug nicht stattgefunden haben sollte.</div>
+        <h4>Warum sind die Adressfelder manchmal falsch befüllt? (z.B. Straße als Firmenname)</h4>
+        <div>Die Adresse (einschließlich Firmenname) wird von Amazon ohne explizite Kennzeichnung in bis zu 3 Zeilen aufgeteilt. Das Plugin teilt diese nach Best Practice in die Adressfelder von plentymarkets auf, kann aber leider keine 100%ige Zuordnung garantieren.</div>
+
+
+        <div style="text-align: center; margin-top:40px;">
+            <b>Impressum</b><br/>Verantwortlich für die Inhalte dieser Webseite gemäß § 6 Teledienstgesetz
+            (tdg): Fa.
+            alkim media •
+            Inhaber: Frau Thekla Alkim • Perleberger Straße 62b • 16866 Kyritz • E-Mail: info@alkim.de •
+            Telefon:
+            033971-604480
+            • Telefax: 033971-32263
+        </div>
+        <p style="text-align: center;"><a href="http://www.alkim.de" target="_blank"
+                                          title="alkim media - eCommerce Agentur f&uuml;r modified eCommerce, xt:Commerce und Gambio GX2"><img
+                class="displayed" src="images/am-banner.png"
+                alt="alkim media - eCommerce Agentur f&uuml;r modified eCommerce, xt:Commerce und Gambio GX2"/></a>
+        </p>
+        <br/><br/>
+    </div>
+</div>
+<div class="about">
+    © alkim media • info@alkim.de • <a href="https://www.alkim.de" target="_blank">www.alkim.de</a>
+</div>
+
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+<script>
+    // When the user scrolls down 20px from the top of the document, show the button
+    window.onscroll = function () {
+        scrollFunction()
+    };
+
+    function scrollFunction() {
+        if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+            document.getElementById("myBtn").style.display = "block";
+        } else {
+            document.getElementById("myBtn").style.display = "none";
+        }
+    }
+
+    // When the user clicks on the button, scroll to the top of the document
+    function topFunction() {
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+    }
+</script>
+</body>
+</html>
