@@ -27,9 +27,9 @@ class CheckoutHelper
     public function createCheckoutSession()
     {
         //try {
-
+        $storeName = (strlen(STORE_NAME) <= 50)?STORE_NAME:(substr(STORE_NAME, 0, 47).'...');
         $merchantData = new \AmazonPayExtendedSdk\Struct\MerchantMetadata();
-        $merchantData->setMerchantStoreName(STORE_NAME);
+        $merchantData->setMerchantStoreName($storeName);
 
         $webCheckoutDetails = new WebCheckoutDetails();
         $webCheckoutDetails->setCheckoutReviewReturnUrl(xtc_href_link(FILENAME_CHECKOUT_SHIPPING, '', 'SSL'));
