@@ -29,7 +29,6 @@ if ($action) {
             break;
     }
 }
-
 ?><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html <?php echo HTML_PARAMS; ?>>
 <head>
@@ -38,7 +37,14 @@ if ($action) {
     <link rel="stylesheet" type="text/css" href="includes/stylesheet.css">
     <script type="text/javascript" src="includes/general.js"></script>
     <style>
-
+        .alert{
+            padding:5px;
+            margin:5px 0;
+        }
+        .alert-error{
+            background: #f59090;
+            border:2px solid red;
+        }
     </style>
 
 </head>
@@ -63,7 +69,16 @@ require(DIR_WS_INCLUDES . 'header.php');
         </td>
         <!-- body_text //-->
         <td valign="top" class="amzConfWr">
+            <?php
+            if(!is_writable($configHelper->getPrivateKeyPath()) || !is_writable($configHelper->getPublicKeyPath()) || !is_writable(dirname($configHelper->getPublicKeyPath()))){
+                ?>
+                    <div class="alert alert-error main">
+                        Die Schreibrechte f&uuml;r das Schl&uuml;sselverzeichnis unter <?php echo dirname($configHelper->getPublicKeyPath());?> sind nicht ausreichend. Bitte setzen Sie die Rechte so, dass der Webserver auf das Verzeichnis und die beinhalteten Dateien vollen Zugriff hat.
+                    </div>
+                <?php
+            }
 
+            ?>
 
             <form name="configuration" action="<?php echo xtc_href_link('amazon_pay_configuration.php'); ?>" method="post">
                 <input type="hidden" name="action" value="save_amazon_pay_configuration"/>
