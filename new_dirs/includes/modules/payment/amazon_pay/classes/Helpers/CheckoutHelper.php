@@ -26,32 +26,33 @@ class CheckoutHelper
 
     public function createCheckoutSession()
     {
-        //try {
-        $storeName = (strlen(STORE_NAME) <= 50)?STORE_NAME:(substr(STORE_NAME, 0, 47).'...');
-        $merchantData = new \AmazonPayExtendedSdk\Struct\MerchantMetadata();
-        $merchantData->setMerchantStoreName($storeName);
+        try {
 
-        $webCheckoutDetails = new WebCheckoutDetails();
-        $webCheckoutDetails->setCheckoutReviewReturnUrl(xtc_href_link(FILENAME_CHECKOUT_SHIPPING, '', 'SSL'));
+            $storeName    = (strlen(STORE_NAME) <= 50) ? STORE_NAME : (substr(STORE_NAME, 0, 47) . '...');
+            $merchantData = new \AmazonPayExtendedSdk\Struct\MerchantMetadata();
+            $merchantData->setMerchantStoreName($storeName);
 
-        $addressRestrictions = new AddressRestrictions();
-        $addressRestrictions->setType('Allowed')
-                            ->setRestrictions($this->configHelper->getAllowedCountries());
-        $deliverySpecifications = new DeliverySpecifications();
-        $deliverySpecifications->setAddressRestrictions($addressRestrictions);
+            $webCheckoutDetails = new WebCheckoutDetails();
+            $webCheckoutDetails->setCheckoutReviewReturnUrl(xtc_href_link(FILENAME_CHECKOUT_SHIPPING, '', 'SSL'));
 
-        $checkoutSession = new CheckoutSession();
-        $checkoutSession->setMerchantMetadata($merchantData)
-                        ->setWebCheckoutDetails($webCheckoutDetails)
-                        ->setStoreId($this->configHelper->getClientId())
-                        ->setPlatformId($this->configHelper->getPlatformId())
-                        ->setDeliverySpecifications($deliverySpecifications);
+            $addressRestrictions = new AddressRestrictions();
+            $addressRestrictions->setType('Allowed')
+                                ->setRestrictions($this->configHelper->getAllowedCountries());
+            $deliverySpecifications = new DeliverySpecifications();
+            $deliverySpecifications->setAddressRestrictions($addressRestrictions);
 
-        return $this->amazonPayHelper->getClient()->createCheckoutSession($checkoutSession);
-        /* } catch (\Exception $e) {
-             //TODO
-             echo $e->getMessage() . "\n";
-         }*/
+            $checkoutSession = new CheckoutSession();
+            $checkoutSession->setMerchantMetadata($merchantData)
+                            ->setWebCheckoutDetails($webCheckoutDetails)
+                            ->setStoreId($this->configHelper->getClientId())
+                            ->setPlatformId($this->configHelper->getPlatformId())
+                            ->setDeliverySpecifications($deliverySpecifications);
+
+            return $this->amazonPayHelper->getClient()->createCheckoutSession($checkoutSession);
+        } catch (\Exception $e) {
+            GeneralHelper::log('error', 'createCheckoutSession failed', $e->getMessage());
+        }
+        return null;
     }
 
     public function getCheckoutSession($checkoutSessionId)
@@ -59,9 +60,9 @@ class CheckoutHelper
         try {
             return $this->amazonPayHelper->getClient()->getCheckoutSession($checkoutSessionId);
         } catch (\Exception $e) {
-            //TODO
-            echo $e->getMessage() . "\n";
+            GeneralHelper::log('error', 'getCheckoutSession failed', [$e->getMessage(), $checkoutSessionId]);
         }
+        return null;
     }
 
     public function updateCheckoutSession($checkoutSessionId, CheckoutSession $checkoutSession)
@@ -69,9 +70,9 @@ class CheckoutHelper
         try {
             return $this->amazonPayHelper->getClient()->updateCheckoutSession($checkoutSessionId, $checkoutSession);
         } catch (\Exception $e) {
-            //TODO
-            echo $e->getMessage() . "\n";
+            GeneralHelper::log('error', 'updateCheckoutSession failed', [$e->getMessage(), $checkoutSessionId, $checkoutSession]);
         }
+        return null;
     }
 
     public function setOrderIdToChargePermission($chargePermissionId, $orderId)

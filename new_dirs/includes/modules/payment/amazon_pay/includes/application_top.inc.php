@@ -9,6 +9,7 @@ if (strpos($PHP_SELF, 'shopping_cart.php') !== false && !empty($_SESSION['paymen
 if (strpos($PHP_SELF, 'checkout_shipping.php') !== false) {
     $accountHelper = new \AlkimAmazonPay\AccountHelper();
     if (!empty($_GET['amazonCheckoutSessionId'])) {
+        \AlkimAmazonPay\GeneralHelper::log('debug', 'start checkout_shipping');
         $checkoutHelper                      = new \AlkimAmazonPay\CheckoutHelper();
         $checkoutSessionId                   = $_GET['amazonCheckoutSessionId'];
         $_SESSION['amazon_checkout_session'] = $checkoutSessionId;
@@ -77,6 +78,7 @@ if (strpos($PHP_SELF, 'checkout_payment.php') !== false) {
     if (isset($_GET['_action']) && $_GET['_action'] === 'reset_payment') {
         unset($_SESSION['payment']);
     } elseif (!empty($_SESSION['payment']) && $_SESSION['payment'] === $configHelper->getPaymentMethodName()) {
+        \AlkimAmazonPay\GeneralHelper::log('debug', 'skip checkout_payment');
         xtc_redirect(xtc_href_link('checkout_confirmation.php', '', 'SSL'));
     }
 }
@@ -88,6 +90,7 @@ if (strpos($PHP_SELF, 'checkout_confirmation.php') !== false && !empty($_SESSION
 }
 
 if (strpos($PHP_SELF, 'checkout_process.php') !== false && !empty($_SESSION['payment']) && $_SESSION['payment'] === $configHelper->getPaymentMethodName()) {
+    \AlkimAmazonPay\GeneralHelper::log('debug', 'start checkout_process');
     if (isset($_POST['checkout_confirmation_comments'])) {
         $_SESSION['comments'] = $_POST['checkout_confirmation_comments'];
     }
@@ -134,13 +137,11 @@ if (strpos($PHP_SELF, 'checkout_process.php') !== false && !empty($_SESSION['pay
             $checkoutSessionUpdate
                 ->setWebCheckoutDetails($webCheckoutDetails)
                 ->setPaymentDetails($paymentDetails);
-            //TODO platform & merchantmeta
-
             $updatedCheckoutSession = $checkoutHelper->updateCheckoutSession($checkoutSession->getCheckoutSessionId(), $checkoutSessionUpdate);
             if ($redirectUrl = $updatedCheckoutSession->getWebCheckoutDetails()->getAmazonPayRedirectUrl()) {
                 xtc_redirect($redirectUrl);
             } else {
-                //TODO log / show error info
+                \AlkimAmazonPay\GeneralHelper::log('warning', 'updateCheckoutSession failed', $checkoutSessionUpdate);
                 xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_CONFIRMATION, 'amazon_pay_error', 'SSL'));
             }
         }
@@ -149,7 +150,7 @@ if (strpos($PHP_SELF, 'checkout_process.php') !== false && !empty($_SESSION['pay
             unset($_SESSION['payment']);
             xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, 'payment_error='.$configHelper->getPaymentMethodName()));
         } else {
-            //TODO handle
+            \AlkimAmazonPay\GeneralHelper::log('warning', 'error x1');
             xtc_redirect(xtc_href_link(FILENAME_SHOPPING_CART, ''));
         }
     }

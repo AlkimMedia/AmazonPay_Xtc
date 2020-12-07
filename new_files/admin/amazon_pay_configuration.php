@@ -94,6 +94,14 @@ require(DIR_WS_INCLUDES . 'header.php');
                 <?php
             }
 
+            if(!is_writable(DIR_FS_CATALOG.'includes/modules/payment/amazon_pay/logs')){
+                ?>
+                <div class="alert alert-error main">
+                    Die Schreibrechte f&uuml;r das Logverzeichnis unter includes/modules/payment/amazon_pay/logs sind nicht ausreichend. Bitte setzen Sie die Rechte so, dass der Webserver auf das Verzeichnis und die beinhalteten Dateien vollen Zugriff hat.
+                </div>
+                <?php
+            }
+
             ?>
 
             <form name="configuration" action="<?php echo xtc_href_link('amazon_pay_configuration.php'); ?>" method="post">
