@@ -62,6 +62,16 @@ if (strpos($PHP_SELF, 'checkout_shipping.php') !== false) {
         }
 
         $_SESSION['payment'] = $configHelper->getPaymentMethodName();
+
+        if(!empty($_SESSION['shipping']) && !empty($_SESSION['shipping']['id'])){
+            $q = "SELECT entry_postcode, entry_country_id FROM ".TABLE_ADDRESS_BOOK." WHERE address_book_id = ".(int)$_SESSION['sendto'];
+            $rs = xtc_db_query($q);
+            if($r = xtc_db_fetch_array($rs)){
+                if($_SESSION['amazon_pay_delivery_zip'] === $r['entry_postcode'] && $_SESSION['amazon_pay_delivery_country'] === $r['entry_country_id']){
+                    xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT));
+                }
+            }
+        }
     } else {
         if ($accountHelper->isLoggedIn() && $accountHelper->getStatusId() !== (int)DEFAULT_CUSTOMERS_STATUS_ID_GUEST) {
             if ($accountHelper->isAccountComplete($_SESSION['customer_id']) === false) {
@@ -75,6 +85,18 @@ if (strpos($PHP_SELF, 'checkout_shipping.php') !== false) {
 }
 
 if (strpos($PHP_SELF, 'checkout_payment.php') !== false) {
+    $_SESSION['amazon_pay_delivery_zip'] = null;
+    $_SESSION['amazon_pay_delivery_country'] = null;
+
+    if(!empty($_SESSION['sendto'])){
+        $q = "SELECT entry_postcode, entry_country_id FROM ".TABLE_ADDRESS_BOOK." WHERE address_book_id = ".(int)$_SESSION['sendto'];
+        $rs = xtc_db_query($q);
+        if($r = xtc_db_fetch_array($rs)){
+            $_SESSION['amazon_pay_delivery_zip'] = $r['entry_postcode'];
+            $_SESSION['amazon_pay_delivery_country'] = $r['entry_country_id'];
+        }
+    }
+
     if (isset($_GET['_action']) && $_GET['_action'] === 'reset_payment') {
         unset($_SESSION['payment']);
     } elseif (!empty($_SESSION['payment']) && $_SESSION['payment'] === $configHelper->getPaymentMethodName()) {
