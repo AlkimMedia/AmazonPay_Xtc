@@ -226,7 +226,7 @@ class CheckoutHelper
               
                     
                     
-                </script>';
+                </script>
 EOT;
         if ($this->configHelper->isDebugMode()) {
             $return .= '<style>.amazon-pay-button, #amazon-pay-button-manual, #amazon-pay-button-product-info{display:none;}</style>';
