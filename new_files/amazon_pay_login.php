@@ -24,11 +24,19 @@ if($r = xtc_db_fetch_array($rs)){
 }else{
     require_once DIR_FS_INC.'xtc_create_password.inc.php';
     $password       = xtc_create_password(32);
+    $names = explode(' ', $buyer['name']);
+    if(count($names) > 1){
+        $lastName = array_pop($names);
+        $firstName = implode(' ', $names);
+    }else{
+        $lastName = $buyer['name'];
+        $firstName = '';
+    }
     $sql_data_array = [
         'customers_status'             => DEFAULT_CUSTOMERS_STATUS_ID,
         'customers_gender'             => '',
-        'customers_firstname'          => '',
-        'customers_lastname'           => $buyer['name'],
+        'customers_firstname'          => $firstName,
+        'customers_lastname'           => $lastName,
         'customers_dob'                => '0000-00-00 00:00:00',
         'customers_email_address'      => $buyer['email'],
         'customers_default_address_id' => '0',
