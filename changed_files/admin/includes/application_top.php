@@ -35,7 +35,7 @@
   define('_VALID_XTC',true);
 
   // Set the level of error reporting
-  error_reporting(E_ALL & ~E_NOTICE);
+  error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT);
 
   // Disable use_trans_sid as xtc_href_link() does this manually
   if (function_exists('ini_set')) {
@@ -271,7 +271,7 @@
     function xtDBquery($query) {
        if (DB_CACHE=='true') {
              $result=xtc_db_queryCached($query);
-             //echo 'cached query: '.$query.'<br>';
+             //echo 'cached query: '.$query.'<br />';
           } else {
              $result=xtc_db_query($query);
     }
@@ -396,7 +396,7 @@ if (SESSION_CHECK_USER_AGENT == 'True') {
   // include the language translations
   require(DIR_FS_LANGUAGES . $_SESSION['language'] . '/admin/'.$_SESSION['language'] . '.php');
   require(DIR_FS_LANGUAGES . $_SESSION['language'] . '/admin/buttons.php');
-  $current_page = split('\?', basename($_SERVER['PHP_SELF'])); $current_page = $current_page[0]; // for BadBlue(Win32) webserver compatibility
+  $current_page = basename($_SERVER['PHP_SELF']);
   if (file_exists(DIR_FS_LANGUAGES . $_SESSION['language'] . '/admin/'.$current_page)) {
   	include(DIR_FS_LANGUAGES . $_SESSION['language'] . '/admin/'.  $current_page);
   }

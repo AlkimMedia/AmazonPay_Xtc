@@ -32,7 +32,7 @@
 define('PAGE_PARSE_START_TIME', microtime());
 
 // set the level of error reporting
-error_reporting(E_ALL & ~E_NOTICE);
+error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 //  error_reporting(E_ALL);
 
 // Set the local configuration parameters - mainly for developers - if exists else the mainconfigure
@@ -175,10 +175,10 @@ require_once (DIR_FS_INC.'xtc_Security.inc.php');
 
 function xtDBquery($query) {
 	if (DB_CACHE == 'true') {
-//			echo  'cached query: '.$query.'<br>';
+//			echo  'cached query: '.$query.'<br />';
 		$result = xtc_db_queryCached($query);
 	} else {
-//				echo '::'.$query .'<br>';
+//				echo '::'.$query .'<br />';
 		$result = xtc_db_query($query);
 
 	}
@@ -211,7 +211,6 @@ if (SEARCH_ENGINE_FRIENDLY_URLS == 'true') {
 				$GET_array[substr($vars[$i], 0, -2)][] = $vars[$i +1];
 			} else {
 				$_GET[$vars[$i]] = htmlspecialchars($vars[$i +1]);
-                if(get_magic_quotes_gpc()) $_GET[$vars[$i]] = addslashes($_GET[$vars[$i]]);
 			}
 			$i ++;
 		}
@@ -219,7 +218,6 @@ if (SEARCH_ENGINE_FRIENDLY_URLS == 'true') {
 		if (sizeof($GET_array) > 0) {
 			while (list ($key, $value) = each($GET_array)) {
 				$_GET[$key] = htmlspecialchars($value);
-                if(get_magic_quotes_gpc()) $_GET[$key] = addslashes($_GET[$key]);
 			}
 		}
 	}
