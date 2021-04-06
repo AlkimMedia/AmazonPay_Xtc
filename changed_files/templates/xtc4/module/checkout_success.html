@@ -10,7 +10,7 @@
     <td class="main" valign="top">{#text_success#}</td>
   </tr>
   {* BOF Amazon Pay Checkout *}
-  {if "AMAZON_PAY_CHECKOUT_SUCCESS_INFORMATION"|defined}
+  {if "AMAZON_PAY_CHECKOUT_SUCCESS_INFORMATION"|defined && $smarty.const.AMAZON_PAY_CHECKOUT_SUCCESS_INFORMATION}
 	<tr>
 		<td class="main" valign="top">
 			<div class="amazon-pay-alert alert alert-warning" style="padding:10px; margin:10px 0; background:#ffe098; border:1px solid #a87608;">

@@ -17,9 +17,10 @@ if (!$checkoutSession || !$checkoutSession->getCheckoutSessionId()) {
     \AlkimAmazonPay\GeneralHelper::log('warning', 'invalid amazon checkout session id', [$_SESSION['amazon_checkout_session'], $checkoutSession]);
     xtc_redirect(xtc_href_link(FILENAME_SHOPPING_CART));
 }
+\AlkimAmazonPay\GeneralHelper::log('debug', 'checkout_process CheckoutSession', [$checkoutSession->toArray()]);
 
 if ($checkoutSession->getStatusDetails()->getState() === \AmazonPayExtendedSdk\Struct\StatusDetails::OPEN) {
-    if ($checkoutSession->getWebCheckoutDetails()->getAmazonPayRedirectUrl() && !$checkoutSession->getConstraints() && !$checkoutSession->getBuyer()) {
+    if ($checkoutSession->getWebCheckoutDetails()->getAmazonPayRedirectUrl() && !$checkoutSession->getConstraints()) {
         //do checkout
     } else {
         $checkoutHelper->doUpdateCheckoutSessionBeforeCheckoutProcess($checkoutSession);

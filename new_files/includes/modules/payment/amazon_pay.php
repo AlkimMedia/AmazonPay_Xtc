@@ -3,7 +3,6 @@ require_once DIR_FS_CATALOG . 'includes/modules/payment/amazon_pay/amazon_pay.ph
 
 use AlkimAmazonPay\AmazonPayHelper;
 use AlkimAmazonPay\CheckoutHelper;
-use AlkimAmazonPay\ConfigHelper;
 use AlkimAmazonPay\GeneralHelper;
 use AlkimAmazonPay\Helpers\TransactionHelper;
 use AlkimAmazonPay\InstallHelper;
@@ -104,7 +103,6 @@ class amazon_pay
 
         //complete checkout session
         $amazonPayHelper = new AmazonPayHelper();
-        $configHelper    = new ConfigHelper();
         $checkoutHelper  = new CheckoutHelper();
         $transactionHelper = new TransactionHelper();
 
@@ -115,7 +113,7 @@ class amazon_pay
         $order        = new order($insert_id);
 
         $paymentDetails->setChargeAmount(new Price(['amount' => round($orderTotal['value'], 2), 'currencyCode' => $order->info['currency']]));
-        //TODO handle errors
+
         try {
             $checkoutSession = $amazonPayHelper->getClient()->completeCheckoutSession($_SESSION['amazon_checkout_session'], $paymentDetails);
             $transactionHelper->saveNewCheckoutSession($checkoutSession, $orderTotal['value'], $order->info['currency'], $insert_id);
@@ -136,7 +134,7 @@ class amazon_pay
             $checkoutHelper->setOrderIdToChargePermission($checkoutSession->getChargePermissionId(), $insert_id);
         } catch (Exception $e) {
             $checkoutSession = $amazonPayHelper->getClient()->getCheckoutSession($_SESSION['amazon_checkout_session']);
-            GeneralHelper::log('error', 'unexpected exception during checkout', [$checkoutSession->toArray()]);
+            GeneralHelper::log('error', 'unexpected exception during checkout', [$e->getMessage(), $checkoutSession->toArray()]);
             $checkoutHelper->defaultErrorHandling();
         }
     }

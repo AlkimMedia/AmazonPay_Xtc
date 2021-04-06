@@ -279,6 +279,7 @@ EOT;
             ->setWebCheckoutDetails($webCheckoutDetails)
             ->setPaymentDetails($paymentDetails);
         $updatedCheckoutSession = $this->updateCheckoutSession($checkoutSession->getCheckoutSessionId(), $checkoutSessionUpdate);
+
         if ($redirectUrl = $updatedCheckoutSession->getWebCheckoutDetails()->getAmazonPayRedirectUrl()) {
             xtc_redirect($redirectUrl);
         } else {
