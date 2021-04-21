@@ -262,4 +262,8 @@ class ConfigHelper
     {
         return Config::PLUGIN_VERSION;
     }
+    
+    public function getCustomInformationString(){
+        return 'Created by AlkimMedia, xtc3, V'.$this->getPluginVersion();
+    }
 }

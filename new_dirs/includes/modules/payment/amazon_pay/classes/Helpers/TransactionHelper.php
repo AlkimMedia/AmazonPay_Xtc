@@ -59,10 +59,9 @@ class TransactionHelper
                 } elseif ($transaction->status === StatusDetails::CAPTURED) {
                     $orderHelper->setOrderStatusCaptured($originalChargeTransaction->order_id);
                 }
-            }
-
-            if ($transaction->status === StatusDetails::AUTHORIZED && APC_CAPTURE_MODE === 'after_auth') {
-                $this->capture($charge->getChargeId());
+                if ($transaction->status === StatusDetails::AUTHORIZED && APC_CAPTURE_MODE === 'after_auth') {
+                    $this->capture($charge->getChargeId());
+                }
             }
         } catch (\Exception $e) {
             GeneralHelper::log('error', 'updateCharge failed', [$e->getMessage(), $charge]);
