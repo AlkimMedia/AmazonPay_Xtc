@@ -114,6 +114,9 @@ class ConfigHelper
                 'type'  => static::FIELD_TYPE_READ_ONLY,
                 'value' => HTTPS_CATALOG_SERVER . DIR_WS_CATALOG . 'callback/amazon_pay/ipn.php'
             ],
+            'APC_CRON_STATUS'                          => [
+                'type'  => static::FIELD_TYPE_BOOL
+            ],
             'HEADING_GENERAL'=>[
                 'type'  => static::FIELD_TYPE_HEADING,
             ],
@@ -225,7 +228,7 @@ class ConfigHelper
     public function resetKey()
     {
         $rsaService = new RSA();
-        if ($keys = $rsaService->createKey()) {
+        if ($keys = $rsaService->createKey(2048)) {
             file_put_contents($this->getPrivateKeyPath(), $keys['privatekey']);
             file_put_contents($this->getPublicKeyPath(), $keys['publickey']);
             $this->updateConfigurationValue('APC_PUBLIC_KEY_ID', '');
@@ -262,7 +265,7 @@ class ConfigHelper
     {
         return Config::PLUGIN_VERSION;
     }
-    
+
     public function getCustomInformationString(){
         return 'Created by AlkimMedia, xtc3, V'.$this->getPluginVersion();
     }
