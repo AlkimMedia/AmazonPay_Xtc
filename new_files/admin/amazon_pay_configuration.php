@@ -2,7 +2,6 @@
 use AlkimAmazonPay\ConfigHelper;require __DIR__ . '/includes/application_top.php';
 require_once DIR_FS_CATALOG . 'includes/modules/payment/amazon_pay/amazon_pay.php';
 $configHelper = new ConfigHelper();
-
 if(isset($_POST['action'])){
     $action = $_POST['action'];
 }elseif(isset($_GET['action'])){
@@ -29,13 +28,8 @@ if ($action) {
             break;
     }
 }
-?><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html <?php echo HTML_PARAMS; ?>>
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $_SESSION['language_charset']; ?>">
-    <title><?php echo TITLE; ?></title>
-    <link rel="stylesheet" type="text/css" href="includes/stylesheet.css">
-    <script type="text/javascript" src="includes/general.js"></script>
+require (DIR_WS_INCLUDES.'head.php');
+?>
     <style>
         .alert{
             padding:5px;
@@ -45,7 +39,7 @@ if ($action) {
             background: #f59090;
             border:2px solid red;
         }
-
+        
         .amz-heading{
             background:#680f0e;
             color:#fff;
@@ -61,19 +55,21 @@ if ($action) {
         #amz-config-table tr:nth-child(2n + 1) td{
             background:#f4f4f4;
         }
+        
+        .amzConfWr input, .amzConfWr select, .amzConfWr .SumoSelect{
+            width:90% !important;
+            box-sizing: border-box;
+        }
+
+        .amzConfWr input, .amzConfWr select{
+            padding:5px;
+        }
     </style>
-
 </head>
-<body marginwidth="0" marginheight="0" topmargin="0" bottommargin="0" leftmargin="0" rightmargin="0" bgcolor="#FFFFFF">
-<div id="spiffycalendar" class="text"></div>
+<body>
 <!-- header //-->
-<?php
-define('NO_JQUERY', 1);
+<?php require(DIR_WS_INCLUDES . 'header.php'); ?>
 
-require(DIR_WS_INCLUDES . 'header.php');
-?>
-<!-- header_eof //-->
-<!-- body //-->
 <table border="0" width="100%" cellspacing="2" cellpadding="2">
     <tr>
         <td class="columnLeft2" width="<?php echo BOX_WIDTH; ?>" valign="top">
@@ -103,8 +99,7 @@ require(DIR_WS_INCLUDES . 'header.php');
             }
 
             ?>
-
-            <form name="configuration" action="<?php echo xtc_href_link('amazon_pay_configuration.php'); ?>" method="post">
+            <?php echo xtc_draw_form('configuration', 'amazon_pay_configuration.php'); ?>
                 <input type="hidden" name="action" value="save_amazon_pay_configuration"/>
                 <table width="100%" border="0" cellspacing="0" cellpadding="8" class="configurationTable main" id="amz-config-table">
                     <?php
