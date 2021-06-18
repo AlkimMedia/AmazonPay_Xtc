@@ -102,6 +102,7 @@ class CheckoutHelper
         $language                 = $this->configHelper->getLanguage();
         $currency                 = $this->configHelper->getCurrency();
         $checkoutSessionId        = (!empty($_SESSION['amazon_checkout_session']) ? $_SESSION['amazon_checkout_session'] : '');
+        $jsPath = DIR_WS_CATALOG . 'includes/modules/payment/amazon_pay/js/amazon-pay.js';
         $checkoutButtonColor      = APC_CHECKOUT_BUTTON_COLOR;
         $loginButtonColor         = APC_LOGIN_BUTTON_COLOR;
 
@@ -124,6 +125,7 @@ class CheckoutHelper
 
         $return = <<<EOT
                 <script src="https://static-eu.payments-amazon.com/checkout.js"></script>
+                <script src="$jsPath"></script>
                 <script type="text/javascript" charset="utf-8">
                 
                     try{

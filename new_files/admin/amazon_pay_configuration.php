@@ -28,8 +28,13 @@ if ($action) {
             break;
     }
 }
-require (DIR_WS_INCLUDES.'head.php');
-?>
+?><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html <?php echo HTML_PARAMS; ?>>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $_SESSION['language_charset']; ?>">
+    <title><?php echo TITLE; ?></title>
+    <link rel="stylesheet" type="text/css" href="includes/stylesheet.css">
+    <script type="text/javascript" src="includes/general.js"></script>
     <style>
         .alert{
             padding:5px;
