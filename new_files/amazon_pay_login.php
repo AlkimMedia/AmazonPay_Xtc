@@ -11,13 +11,12 @@ $checkoutHelper  = new \AlkimAmazonPay\CheckoutHelper();
 $configHelper    = new \AlkimAmazonPay\ConfigHelper();
 $amazonPayHelper = new \AlkimAmazonPay\AmazonPayHelper;
 $token           = $_GET['buyerToken'];
-
 $buyer = $amazonPayHelper->getClient()->getBuyer($token);
 
 $q  = "SELECT * FROM " . TABLE_CUSTOMERS . " WHERE customers_email_address = '" . xtc_db_input($buyer['email']) . "' and account_type = '0'";
 $rs = xtc_db_query($q);
 if ($r = xtc_db_fetch_array($rs)) {
-    $_SESSION['customer_id'] = $r['customers_id'];
+    $accountHelper->doLogin($r['customers_id']);
     xtc_redirect(xtc_href_link('account.php'));
 } else {
     require_once DIR_FS_INC . 'xtc_create_password.inc.php';
@@ -47,10 +46,19 @@ if ($r = xtc_db_fetch_array($rs)) {
         'account_type' => 0,
     ];
     xtc_db_perform(TABLE_CUSTOMERS, $sql_data_array);
-    $_SESSION['customer_id'] = xtc_db_insert_id();
+    $customerId = xtc_db_insert_id();
     xtc_db_perform(TABLE_CUSTOMERS_INFO, [
-        'customers_info_id' => $_SESSION['customer_id'],
+        'customers_info_id' => $customerId,
     ]);
+    
+    $address = new AmazonPayExtendedSdk\Struct\Address($buyer['shippingAddress']);
+    $addressBookSqlArray = $accountHelper->convertAddressToArray($address);
+    
+    $addressId = (int)$accountHelper->createAddress($address, $_SESSION['customer_id']);
+    xtc_db_perform(TABLE_CUSTOMERS, ['customers_default_address_id' => $addressId], 'update', 'customers_id = ' . (int)$customerId);
+
+    $accountHelper->doLogin($customerId);
+
     xtc_redirect(xtc_href_link('account.php'));
 }
 

@@ -170,4 +170,20 @@ class AccountHelper
         xtc_db_perform(TABLE_ADDRESS_BOOK, $address_book_sql_array);
         return xtc_db_insert_id();
     }
+    
+    public function doLogin($customerId){
+        $q = "SELECT * FROM ".TABLE_CUSTOMERS." c LEFT JOIN ".TABLE_ADDRESS_BOOK." a ON (c.customers_default_address_id = a.address_book_id) WHERE c.customers_id = ".(int)$customerId;
+        $rs = xtc_db_query($q);
+        if($r = xtc_db_fetch_array($rs)){
+            $_SESSION['customer_gender'] = $r['customers_gender'];
+            $_SESSION['customer_first_name'] = $r['customers_firstname'];
+            $_SESSION['customer_last_name'] = $r['customers_lastname'];
+            $_SESSION['customer_id'] = $r['customers_id'];
+            $_SESSION['customer_vat_id'] = $r['customers_vat_id'];
+            $_SESSION['customer_default_address_id'] = $r['customers_default_address_id'];
+            $_SESSION['customer_country_id'] = $r['entry_country_id'];
+            $_SESSION['customer_zone_id'] = $r['entry_zone_id'];
+            $_SESSION['customer_id'] = $customerId;
+        }
+    }
 }
