@@ -17,7 +17,6 @@ $q  = "SELECT * FROM " . TABLE_CUSTOMERS . " WHERE customers_email_address = '" 
 $rs = xtc_db_query($q);
 if ($r = xtc_db_fetch_array($rs)) {
     $accountHelper->doLogin($r['customers_id']);
-    xtc_redirect(xtc_href_link('account.php'));
 } else {
     require_once DIR_FS_INC . 'xtc_create_password.inc.php';
     $password = xtc_create_password(32);
@@ -54,11 +53,10 @@ if ($r = xtc_db_fetch_array($rs)) {
     $address = new AmazonPayExtendedSdk\Struct\Address($buyer['shippingAddress']);
     $addressBookSqlArray = $accountHelper->convertAddressToArray($address);
     
-    $addressId = (int)$accountHelper->createAddress($address, $_SESSION['customer_id']);
+    $addressId = (int)$accountHelper->createAddress($address, $customerId);
     xtc_db_perform(TABLE_CUSTOMERS, ['customers_default_address_id' => $addressId], 'update', 'customers_id = ' . (int)$customerId);
 
     $accountHelper->doLogin($customerId);
-
-    xtc_redirect(xtc_href_link('account.php'));
 }
 
+xtc_redirect(xtc_href_link('account.php'));
