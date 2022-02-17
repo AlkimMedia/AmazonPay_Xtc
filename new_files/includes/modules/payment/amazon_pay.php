@@ -6,6 +6,7 @@ use AlkimAmazonPay\CheckoutHelper;
 use AlkimAmazonPay\GeneralHelper;
 use AlkimAmazonPay\Helpers\TransactionHelper;
 use AlkimAmazonPay\InstallHelper;
+use AlkimAmazonPay\OrderHelper;
 use AmazonPayExtendedSdk\Struct\PaymentDetails;
 use AmazonPayExtendedSdk\Struct\Price;
 use AmazonPayExtendedSdk\Struct\StatusDetails;
@@ -44,9 +45,10 @@ class amazon_pay
         $this->code = __CLASS__;
         $this->title = MODULE_PAYMENT_AMAZON_PAY_TEXT_TITLE;
         $this->description = MODULE_PAYMENT_AMAZON_PAY_TEXT_DESCRIPTION;
-        $this->sort_order = MODULE_PAYMENT_AMAZON_PAY_SORT_ORDER;
-        $this->enabled = (MODULE_PAYMENT_AMAZON_PAY_STATUS == 'True');
+        $this->sort_order = defined('MODULE_PAYMENT_AMAZON_PAY_SORT_ORDER') ? MODULE_PAYMENT_AMAZON_PAY_SORT_ORDER : null;
+        $this->enabled = defined('MODULE_PAYMENT_AMAZON_PAY_SORT_ORDER') && MODULE_PAYMENT_AMAZON_PAY_STATUS === 'True';
         $this->info = MODULE_PAYMENT_AMAZON_PAY_TEXT_INFO;
+
         if (is_object($order)) {
             $this->update_status();
         }
@@ -110,8 +112,8 @@ class amazon_pay
         try {
             $orderTotal = $this->getOrderTotal($insert_id);
 
-            if($orderTotal <= 0){
-                throw new Exception('order value must be greater than 0 (order #'.$insert_id.')');
+            if ($orderTotal <= 0) {
+                throw new Exception('order value must be greater than 0 (order #' . $insert_id . ')');
             }
             $order = new order($insert_id);
 
@@ -129,12 +131,20 @@ class amazon_pay
             if ($checkoutSession->getChargeId()) {
                 $charge = $amazonPayHelper->getClient()->getCharge($checkoutSession->getChargeId());
                 $transaction = $transactionHelper->saveNewCharge($charge, $insert_id);
-                if ($transaction->status === StatusDetails::AUTHORIZED && APC_CAPTURE_MODE === 'after_auth') {
-                    $transactionHelper->capture($charge->getChargeId());
+                if ($transaction->status === StatusDetails::AUTHORIZED) {
+                    $orderHelper = new OrderHelper();
+                    $orderHelper->setOrderStatusAuthorized($insert_id);
+                    if (APC_CAPTURE_MODE === 'after_auth') {
+                        $transactionHelper->capture($charge->getChargeId());
+                    }
                 }
             }
 
             $checkoutHelper->setOrderIdToChargePermission($checkoutSession->getChargePermissionId(), $insert_id);
+
+            if (defined('APC_ORDER_REFERENCE_IN_COMMENT') && APC_ORDER_REFERENCE_IN_COMMENT === 'True') {
+                xtc_db_query("UPDATE orders SET comments = CONCAT('" . xtc_db_input(TEXT_AMAZON_PAY_ORDER_REFERENCE . ": " . $checkoutSession->getChargePermissionId() . "\n\n") . "', comments) WHERE orders_id = " . (int)$insert_id);
+            }
         } catch (Exception $e) {
             $checkoutSession = $amazonPayHelper->getClient()->getCheckoutSession($_SESSION['amazon_checkout_session']);
             GeneralHelper::log('error', 'unexpected exception during checkout', [$e->getMessage(), $checkoutSession->toArray()]);
