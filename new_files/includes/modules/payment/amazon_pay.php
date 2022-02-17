@@ -41,12 +41,12 @@ class amazon_pay
     {
         global $order;
 
-        $this->code        = __CLASS__;
-        $this->title       = MODULE_PAYMENT_AMAZON_PAY_TEXT_TITLE;
+        $this->code = __CLASS__;
+        $this->title = MODULE_PAYMENT_AMAZON_PAY_TEXT_TITLE;
         $this->description = MODULE_PAYMENT_AMAZON_PAY_TEXT_DESCRIPTION;
-        $this->sort_order  = MODULE_PAYMENT_AMAZON_PAY_SORT_ORDER;
-        $this->enabled     = (MODULE_PAYMENT_AMAZON_PAY_STATUS == 'True');
-        $this->info        = MODULE_PAYMENT_AMAZON_PAY_TEXT_INFO;
+        $this->sort_order = MODULE_PAYMENT_AMAZON_PAY_SORT_ORDER;
+        $this->enabled = (MODULE_PAYMENT_AMAZON_PAY_STATUS == 'True');
+        $this->info = MODULE_PAYMENT_AMAZON_PAY_TEXT_INFO;
         if (is_object($order)) {
             $this->update_status();
         }
@@ -66,9 +66,9 @@ class amazon_pay
     function selection()
     {
         return [
-            'id'          => $this->code,
-            'module'      => $this->title,
-            'description' => $this->info . '<div style="display:none;"><div id="amazon-pay-button-manual"></div></div>'
+            'id' => $this->code,
+            'module' => $this->title,
+            'description' => $this->info . '<div style="display:none;"><div id="amazon-pay-button-manual"></div></div>',
         ];
     }
 
@@ -80,7 +80,7 @@ class amazon_pay
     function confirmation()
     {
         return [
-            'title' => $this->description
+            'title' => $this->description,
         ];
     }
 
@@ -103,28 +103,31 @@ class amazon_pay
 
         //complete checkout session
         $amazonPayHelper = new AmazonPayHelper();
-        $checkoutHelper  = new CheckoutHelper();
+        $checkoutHelper = new CheckoutHelper();
         $transactionHelper = new TransactionHelper();
 
         $paymentDetails = new PaymentDetails();
-
-        $orderTotalRs = xtc_db_query("SELECT `value` FROM " . TABLE_ORDERS_TOTAL . " where orders_id = '" . (int)$insert_id . "' and class = 'ot_total'");
-        $orderTotal   = xtc_db_fetch_array($orderTotalRs);
-        $order        = new order($insert_id);
-
-        $paymentDetails->setChargeAmount(new Price(['amount' => round($orderTotal['value'], 2), 'currencyCode' => $order->info['currency']]));
-
         try {
+            $orderTotal = $this->getOrderTotal($insert_id);
+
+            if($orderTotal <= 0){
+                throw new Exception('order value must be greater than 0 (order #'.$insert_id.')');
+            }
+            $order = new order($insert_id);
+
+            $paymentDetails->setChargeAmount(new Price(['amount' => round($orderTotal, 2), 'currencyCode' => $order->info['currency']]));
+
+
             $checkoutSession = $amazonPayHelper->getClient()->completeCheckoutSession($_SESSION['amazon_checkout_session'], $paymentDetails);
-            $transactionHelper->saveNewCheckoutSession($checkoutSession, $orderTotal['value'], $order->info['currency'], $insert_id);
+            $transactionHelper->saveNewCheckoutSession($checkoutSession, $orderTotal, $order->info['currency'], $insert_id);
 
             if ($checkoutSession->getChargePermissionId()) {
-                $chargePermission           = $amazonPayHelper->getClient()->getChargePermission($checkoutSession->getChargePermissionId());
+                $chargePermission = $amazonPayHelper->getClient()->getChargePermission($checkoutSession->getChargePermissionId());
                 $transactionHelper->saveNewChargePermission($chargePermission, $insert_id);
             }
 
             if ($checkoutSession->getChargeId()) {
-                $charge                     = $amazonPayHelper->getClient()->getCharge($checkoutSession->getChargeId());
+                $charge = $amazonPayHelper->getClient()->getCharge($checkoutSession->getChargeId());
                 $transaction = $transactionHelper->saveNewCharge($charge, $insert_id);
                 if ($transaction->status === StatusDetails::AUTHORIZED && APC_CAPTURE_MODE === 'after_auth') {
                     $transactionHelper->capture($charge->getChargeId());
@@ -139,6 +142,31 @@ class amazon_pay
         }
     }
 
+    function getOrderTotal($orderId)
+    {
+        $orderTotalRs = xtc_db_query("SELECT * FROM " . TABLE_ORDERS_TOTAL . " where orders_id = '" . (int)$orderId . "' and class IN ('ot_total', 'ot_gv')");
+        $totalValue = 0;
+        $otTotalSortOrder = 0;
+        $voucherValue = 0;
+        $otGvSortOrder = 0;
+
+        while ($orderTotal = xtc_db_fetch_array($orderTotalRs)) {
+            if ($orderTotal['class'] === 'ot_total') {
+                $otTotalSortOrder = (int)$orderTotal['sort_order'];
+                $totalValue += $orderTotal['value'];
+            }
+            if ($orderTotal['class'] === 'ot_gv') {
+                $otGvSortOrder = (int)$orderTotal['sort_order'];
+                $voucherValue = $orderTotal['value'];
+            }
+        }
+
+        if ($voucherValue > 0 && $otGvSortOrder > $otTotalSortOrder) {
+            $totalValue -= $voucherValue;
+        }
+        return $totalValue;
+    }
+
     function get_error()
     {
         return ['error' => TEXT_AMAZON_PAY_ERROR];
@@ -147,7 +175,7 @@ class amazon_pay
     function check()
     {
         if (!isset ($this->_check)) {
-            $check_query  = xtc_db_query("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_AMAZON_PAY_STATUS'");
+            $check_query = xtc_db_query("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_AMAZON_PAY_STATUS'");
             $this->_check = xtc_db_num_rows($check_query);
         }
 
@@ -157,10 +185,10 @@ class amazon_pay
     function install()
     {
         $values = [
-            'MODULE_PAYMENT_AMAZON_PAY_STATUS'     => ['value' => 'False'],
-            'MODULE_PAYMENT_AMAZON_PAY_ALLOWED'    => ['value' => ''],
+            'MODULE_PAYMENT_AMAZON_PAY_STATUS' => ['value' => 'False'],
+            'MODULE_PAYMENT_AMAZON_PAY_ALLOWED' => ['value' => ''],
             'MODULE_PAYMENT_AMAZON_PAY_SORT_ORDER' => ['value' => '0'],
-            'MODULE_PAYMENT_AMAZON_PAY_ZONE'       => ['value' => '']
+            'MODULE_PAYMENT_AMAZON_PAY_ZONE' => ['value' => ''],
         ];
 
         foreach ($values as $key => $data) {
@@ -189,7 +217,7 @@ class amazon_pay
             'MODULE_PAYMENT_AMAZON_PAY_STATUS',
             'MODULE_PAYMENT_AMAZON_PAY_ALLOWED',
             'MODULE_PAYMENT_AMAZON_PAY_SORT_ORDER',
-            'MODULE_PAYMENT_AMAZON_PAY_ZONE'
+            'MODULE_PAYMENT_AMAZON_PAY_ZONE',
         ];
     }
 }
