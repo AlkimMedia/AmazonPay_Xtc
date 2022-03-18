@@ -20,7 +20,7 @@ if (!empty($_SESSION['sendto'])) {
 
 if (isset($_GET['_action']) && $_GET['_action'] === 'reset_payment') {
     unset($_SESSION['payment']);
-} elseif (!empty($_SESSION['payment']) && $_SESSION['payment'] === $configHelper->getPaymentMethodName()) {
+} elseif (!empty($_SESSION['payment']) && $_SESSION['payment'] === $configHelper->getPaymentMethodName() && empty($_GET['error_message']) && isset($_SESSION['sendto'])) {
     \AlkimAmazonPay\GeneralHelper::log('debug', 'skip checkout_payment');
     xtc_redirect(xtc_href_link('checkout_confirmation.php', '', 'SSL'));
 }

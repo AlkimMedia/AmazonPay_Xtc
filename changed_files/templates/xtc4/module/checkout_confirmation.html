@@ -42,7 +42,7 @@
 {if $PAYMENT_METHOD!=''}
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td class="main"><strong>{#text_payment_method#}</strong>&nbsp;{$PAYMENT_METHOD}&nbsp;<a href="{'checkout_payment.php'|xtc_href_link:'_action=reset_payment':'SSL'}{* if $smarty.session.payment === 'amazon_pay'}javascript:function(){ldelim}{rdelim}{else}{$PAYMENT_EDIT}{/if *}" class="confirmationEdit"{* if $smarty.session.payment === 'amazon_pay'}id="amz-change-payment"{/if *}>{#text_edit#}</a></td>
+    <td class="main"><strong>{#text_payment_method#}</strong>&nbsp;{if 'AMAZON_PAY_PAYMENT_DESCRIPTOR'|defined}{$smarty.const.AMAZON_PAY_PAYMENT_DESCRIPTOR}{else}{$PAYMENT_METHOD}{/if}&nbsp;<a href="{'checkout_payment.php'|xtc_href_link:'_action=reset_payment':'SSL'}{* if $smarty.session.payment === 'amazon_pay'}javascript:function(){ldelim}{rdelim}{else}{$PAYMENT_EDIT}{/if *}" class="confirmationEdit"{* if $smarty.session.payment === 'amazon_pay'}id="amz-change-payment"{/if *}>{#text_edit#}</a></td>
   </tr>
 </table> 
 {/if}

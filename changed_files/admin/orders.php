@@ -218,12 +218,12 @@ if (($_GET['action'] == 'edit') && ($order_exists)) {
             <td valign="top"><table width="100%" border="0" cellspacing="0" cellpadding="2">
             <?php if ($order->customer['csID']!='') { ?>
                 <tr>
-                <td class="main" valign="top" bgcolor="#FFCC33"><strong><?php echo ENTRY_CID; ?></strong></td>
+                <td class="main" valign="top" bgcolor="#FFCC33"><b><?php echo ENTRY_CID; ?></b></td>
                 <td class="main" bgcolor="#FFCC33"><?php echo $order->customer['csID']; ?></td>
               </tr>
             <?php } ?>
               <tr>
-                <td class="main" valign="top"><strong><?php echo ENTRY_CUSTOMER; ?></strong></td>
+                <td class="main" valign="top"><b><?php echo ENTRY_CUSTOMER; ?></b></td>
                 <td class="main"><?php echo xtc_address_format($order->customer['format_id'], $order->customer, 1, '', '<br />'); ?></td>
               </tr>
               <tr>
@@ -231,41 +231,41 @@ if (($_GET['action'] == 'edit') && ($order_exists)) {
               </tr>
 
               <tr>
-                <td class="main" valign="top"><strong><?php echo CUSTOMERS_MEMO; ?></strong></td>
+                <td class="main" valign="top"><b><?php echo CUSTOMERS_MEMO; ?></b></td>
 <?php
 
 	// memoquery
 	$memo_query = xtc_db_query("SELECT count(*) as count FROM ".TABLE_CUSTOMERS_MEMO." where customers_id='".$order->customer['ID']."'");
 	$memo_count = xtc_db_fetch_array($memo_query);
 ?>
-                <td class="main"><strong><?php echo $memo_count['count'].'</strong>'; ?>  <a style="cursor:hand" onClick="javascript:window.open('<?php echo xtc_href_link(FILENAME_POPUP_MEMO,'ID='.$order->customer['ID']); ?>', 'popup', 'scrollbars=yes, width=500, height=500')">(<?php echo DISPLAY_MEMOS; ?>)</a></td>
+                <td class="main"><b><?php echo $memo_count['count'].'</b>'; ?>  <a style="cursor:hand" onClick="javascript:window.open('<?php echo xtc_href_link(FILENAME_POPUP_MEMO,'ID='.$order->customer['ID']); ?>', 'popup', 'scrollbars=yes, width=500, height=500')">(<?php echo DISPLAY_MEMOS; ?>)</a></td>
               </tr>
               <tr>
-                <td class="main"><strong><?php echo ENTRY_TELEPHONE; ?></strong></td>
+                <td class="main"><b><?php echo ENTRY_TELEPHONE; ?></b></td>
                 <td class="main"><?php echo $order->customer['telephone']; ?></td>
               </tr>
               <tr>
-                <td class="main"><strong><?php echo ENTRY_EMAIL_ADDRESS; ?></strong></td>
+                <td class="main"><b><?php echo ENTRY_EMAIL_ADDRESS; ?></b></td>
                 <td class="main"><?php echo '<a href="mailto:' . $order->customer['email_address'] . '"><u>' . $order->customer['email_address'] . '</u></a>'; ?></td>
               </tr>
               <tr>
-                <td class="main"><strong><?php echo ENTRY_CUSTOMERS_VAT_ID; ?></strong></td>
+                <td class="main"><b><?php echo ENTRY_CUSTOMERS_VAT_ID; ?></b></td>
                 <td class="main"><?php echo $order->customer['vat_id']; ?></td>
               </tr>
               <tr>
-                <td class="main" valign="top" bgcolor="#FFCC33"><strong><?php echo IP; ?></strong></td>
-                <td class="main" bgcolor="#FFCC33"><strong><?php echo $order->customer['cIP']; ?></strong></td>
+                <td class="main" valign="top" bgcolor="#FFCC33"><b><?php echo IP; ?></b></td>
+                <td class="main" bgcolor="#FFCC33"><b><?php echo $order->customer['cIP']; ?></b></td>
               </tr>
             </table></td>
             <td valign="top"><table width="100%" border="0" cellspacing="0" cellpadding="2">
               <tr>
-                <td class="main" valign="top"><strong><?php echo ENTRY_SHIPPING_ADDRESS; ?></strong></td>
+                <td class="main" valign="top"><b><?php echo ENTRY_SHIPPING_ADDRESS; ?></b></td>
                 <td class="main"><?php echo xtc_address_format($order->delivery['format_id'], $order->delivery, 1, '', '<br />'); ?></td>
               </tr>
             </table></td>
             <td valign="top"><table width="100%" border="0" cellspacing="0" cellpadding="2">
               <tr>
-                <td class="main" valign="top"><strong><?php echo ENTRY_BILLING_ADDRESS; ?></strong></td>
+                <td class="main" valign="top"><b><?php echo ENTRY_BILLING_ADDRESS; ?></b></td>
                 <td class="main"><?php echo xtc_address_format($order->billing['format_id'], $order->billing, 1, '', '<br />'); ?></td>
               </tr>
             </table></td>
@@ -278,11 +278,11 @@ if (($_GET['action'] == 'edit') && ($order_exists)) {
       <tr>
         <td><table border="0" cellspacing="0" cellpadding="2">
         <tr>
-            <td class="main"><strong><?php echo ENTRY_LANGUAGE; ?></strong></td>
+            <td class="main"><b><?php echo ENTRY_LANGUAGE; ?></b></td>
             <td class="main"><?php echo $order->info['language']; ?></td>
           </tr>
           <tr>
-            <td class="main"><strong><?php echo ENTRY_PAYMENT_METHOD; ?></strong></td>
+            <td class="main"><b><?php echo ENTRY_PAYMENT_METHOD; ?></b></td>
             <td class="main"><?php echo $order->info['payment_method']; ?></td>
           </tr>
 <?php
@@ -511,13 +511,13 @@ $payment->admin_order($_GET['oID']);
 			echo '<td class="dataTableContent" align="right" valign="top">';
 			echo xtc_display_tax_value($order->products[$i]['tax']).'%';
 			echo '</td>'."\n";
-			echo '<td class="dataTableContent" align="right" valign="top"><strong>';
+			echo '<td class="dataTableContent" align="right" valign="top"><b>';
 
 			echo format_price($order->products[$i]['final_price'] / $order->products[$i]['qty'], 1, $order->info['currency'], 0, 0);
 
-			echo '</strong></td>'."\n";
+			echo '</b></td>'."\n";
 		}
-		echo '            <td class="dataTableContent" align="right" valign="top"><strong>'.format_price(($order->products[$i]['final_price']), 1, $order->info['currency'], 0, 0).'</strong></td>'."\n";
+		echo '            <td class="dataTableContent" align="right" valign="top"><b>'.format_price(($order->products[$i]['final_price']), 1, $order->info['currency'], 0, 0).'</b></td>'."\n";
 		echo '          </tr>'."\n";
 	}
 ?>
@@ -539,10 +539,10 @@ $payment->admin_order($_GET['oID']);
       <tr>
         <td class="main"><table border="1" cellspacing="0" cellpadding="5">
           <tr>
-            <td class="smallText" align="center"><strong><?php echo TABLE_HEADING_DATE_ADDED; ?></strong></td>
-            <td class="smallText" align="center"><strong><?php echo TABLE_HEADING_CUSTOMER_NOTIFIED; ?></strong></td>
-            <td class="smallText" align="center"><strong><?php echo TABLE_HEADING_STATUS; ?></strong></td>
-            <td class="smallText" align="center"><strong><?php echo TABLE_HEADING_COMMENTS; ?></strong></td>
+            <td class="smallText" align="center"><b><?php echo TABLE_HEADING_DATE_ADDED; ?></b></td>
+            <td class="smallText" align="center"><b><?php echo TABLE_HEADING_CUSTOMER_NOTIFIED; ?></b></td>
+            <td class="smallText" align="center"><b><?php echo TABLE_HEADING_STATUS; ?></b></td>
+            <td class="smallText" align="center"><b><?php echo TABLE_HEADING_COMMENTS; ?></b></td>
           </tr>
 <?php
 
@@ -570,7 +570,7 @@ $payment->admin_order($_GET['oID']);
         </table></td>
       </tr>
       <tr>
-        <td class="main"><br /><strong><?php echo TABLE_HEADING_COMMENTS; ?></strong></td>
+        <td class="main"><br /><b><?php echo TABLE_HEADING_COMMENTS; ?></b></td>
       </tr>
       <tr>
         <td><?php echo xtc_draw_separator('pixel_trans.gif', '1', '5'); ?></td>
@@ -586,11 +586,11 @@ $payment->admin_order($_GET['oID']);
           <tr>
             <td><table border="0" cellspacing="0" cellpadding="2">
               <tr>
-                <td class="main"><strong><?php echo ENTRY_STATUS; ?></strong> <?php echo xtc_draw_pull_down_menu('status', $orders_statuses, $order->info['orders_status']); ?></td>
+                <td class="main"><b><?php echo ENTRY_STATUS; ?></b> <?php echo xtc_draw_pull_down_menu('status', $orders_statuses, $order->info['orders_status']); ?></td>
               </tr>
               <tr>
-                <td class="main"><strong><?php echo ENTRY_NOTIFY_CUSTOMER; ?></strong> <?php echo xtc_draw_checkbox_field('notify', '', true); ?></td>
-                <td class="main"><strong><?php echo ENTRY_NOTIFY_COMMENTS; ?></strong> <?php echo xtc_draw_checkbox_field('notify_comments', '', true); ?></td>
+                <td class="main"><b><?php echo ENTRY_NOTIFY_CUSTOMER; ?></b> <?php echo xtc_draw_checkbox_field('notify', '', true); ?></td>
+                <td class="main"><b><?php echo ENTRY_NOTIFY_COMMENTS; ?></b> <?php echo xtc_draw_checkbox_field('notify_comments', '', true); ?></td>
               </tr>
             </table></td>
             <td valign="top"><input type="submit" class="button" value="<?php echo BUTTON_UPDATE; ?>"></td>
@@ -726,16 +726,16 @@ elseif ($_GET['action'] == 'custom_action') {
 	$contents = array ();
 	switch ($_GET['action']) {
 		case 'delete' :
-			$heading[] = array ('text' => '<strong>'.TEXT_INFO_HEADING_DELETE_ORDER.'</strong>');
+			$heading[] = array ('text' => '<b>'.TEXT_INFO_HEADING_DELETE_ORDER.'</b>');
 
 			$contents = array ('form' => xtc_draw_form('orders', FILENAME_ORDERS, xtc_get_all_get_params(array ('oID', 'action')).'oID='.$oInfo->orders_id.'&action=deleteconfirm'));
-			$contents[] = array ('text' => TEXT_INFO_DELETE_INTRO.'<br /><br /><strong>'.$cInfo->customers_firstname.' '.$cInfo->customers_lastname.'</strong>');
+			$contents[] = array ('text' => TEXT_INFO_DELETE_INTRO.'<br /><br /><b>'.$cInfo->customers_firstname.' '.$cInfo->customers_lastname.'</b>');
 			$contents[] = array ('text' => '<br />'.xtc_draw_checkbox_field('restock').' '.TEXT_INFO_RESTOCK_PRODUCT_QUANTITY);
 			$contents[] = array ('align' => 'center', 'text' => '<br /><input type="submit" class="button" value="'. BUTTON_DELETE .'"><a class="button" href="'.xtc_href_link(FILENAME_ORDERS, xtc_get_all_get_params(array ('oID', 'action')).'oID='.$oInfo->orders_id).'">' . BUTTON_CANCEL . '</a>');
 			break;
 		default :
 			if (is_object($oInfo)) {
-				$heading[] = array ('text' => '<strong>['.$oInfo->orders_id.']&nbsp;&nbsp;'.xtc_datetime_short($oInfo->date_purchased).'</strong>');
+				$heading[] = array ('text' => '<b>['.$oInfo->orders_id.']&nbsp;&nbsp;'.xtc_datetime_short($oInfo->date_purchased).'</b>');
 
 				$contents[] = array ('align' => 'center', 'text' => '<a class="button" href="'.xtc_href_link(FILENAME_ORDERS, xtc_get_all_get_params(array ('oID', 'action')).'oID='.$oInfo->orders_id.'&action=edit').'">'.BUTTON_EDIT.'</a> <a class="button" href="'.xtc_href_link(FILENAME_ORDERS, xtc_get_all_get_params(array ('oID', 'action')).'oID='.$oInfo->orders_id.'&action=delete').'">'.BUTTON_DELETE.'</a>');
 				if (AFTERBUY_ACTIVATED == 'true') {

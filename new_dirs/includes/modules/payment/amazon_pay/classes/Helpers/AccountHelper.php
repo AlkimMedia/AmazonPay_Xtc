@@ -172,7 +172,8 @@ class AccountHelper
     }
     
     public function doLogin($customerId){
-        $q = "SELECT * FROM ".TABLE_CUSTOMERS." c LEFT JOIN ".TABLE_ADDRESS_BOOK." a ON (c.customers_default_address_id = a.address_book_id) WHERE c.customers_id = ".(int)$customerId;
+        $customerId = (int)$customerId;
+        $q = "SELECT * FROM ".TABLE_CUSTOMERS." c LEFT JOIN ".TABLE_ADDRESS_BOOK." a ON (c.customers_default_address_id = a.address_book_id) WHERE c.customers_id = ".$customerId;
         $rs = xtc_db_query($q);
         if($r = xtc_db_fetch_array($rs)){
             $_SESSION['customer_gender'] = $r['customers_gender'];
@@ -183,6 +184,7 @@ class AccountHelper
             $_SESSION['customer_default_address_id'] = $r['customers_default_address_id'];
             $_SESSION['customer_country_id'] = $r['entry_country_id'];
             $_SESSION['customer_zone_id'] = $r['entry_zone_id'];
+            $_SESSION['customer_email_address'] = $r['customers_email_address'];
             $_SESSION['customer_id'] = $customerId;
         }
     }
