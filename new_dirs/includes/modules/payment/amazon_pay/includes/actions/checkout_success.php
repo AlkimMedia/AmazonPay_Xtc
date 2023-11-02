@@ -15,7 +15,7 @@ $orders_query = xtc_db_query("SELECT o.payment_class, a.status
 if ($order = xtc_db_fetch_array($orders_query)) {
     if ($order["payment_class"] === $configHelper->getPaymentMethodName()
         &&
-        $order['status'] === \AmazonPayExtendedSdk\Struct\StatusDetails::AUTHORIZATION_INITIATED
+        $order['status'] === \AmazonPayApiSdkExtension\Struct\StatusDetails::AUTHORIZATION_INITIATED
     ) {
         define('AMAZON_PAY_CHECKOUT_SUCCESS_INFORMATION', TEXT_AMAZON_PAY_PENDING);
     }

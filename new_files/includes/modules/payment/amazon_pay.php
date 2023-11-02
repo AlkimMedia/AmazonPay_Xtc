@@ -7,9 +7,9 @@ use AlkimAmazonPay\GeneralHelper;
 use AlkimAmazonPay\Helpers\TransactionHelper;
 use AlkimAmazonPay\InstallHelper;
 use AlkimAmazonPay\OrderHelper;
-use AmazonPayExtendedSdk\Struct\PaymentDetails;
-use AmazonPayExtendedSdk\Struct\Price;
-use AmazonPayExtendedSdk\Struct\StatusDetails;
+use AmazonPayApiSdkExtension\Struct\PaymentDetails;
+use AmazonPayApiSdkExtension\Struct\Price;
+use AmazonPayApiSdkExtension\Struct\StatusDetails;
 
 class amazon_pay
 {

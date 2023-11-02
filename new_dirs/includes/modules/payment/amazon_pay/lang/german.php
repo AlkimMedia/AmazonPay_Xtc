@@ -18,6 +18,9 @@ $texts = [
     'MODULE_PAYMENT_AMAZON_PAY_ALLOWED_DESC' => 'Geben Sie <b>einzeln</b> die Zonen an => welche f&uuml;r dieses Modul erlaubt sein sollen. (z.B. AT,DE (wenn leer => werden alle Zonen erlaubt))',
 
     //config texts
+    'APC_KEY_UPGRADE_INFO' => 'Wir haben ein &auml;lteres Amazon Pay Modul gefunden. M&ouml;chten Sie versuchen, die Zugangsdaten von dort zu &uuml;bernehmen?',
+    'APC_KEY_UPGRADE_BUTTON_CAPTION' => 'Zugangsdaten &uuml;bernehmen',
+    'APC_KEY_UPGRADE_INFO_SUCCESS' => 'Die Zugangsdaten wurden erfolgreich &uuml;bernommen.',
     'APC_MERCHANT_ID_TITLE'=>'Amazon H&auml;ndler ID',
     'APC_CLIENT_ID_TITLE'=>'Amazon Store ID',
     'APC_PUBLIC_KEY_ID_TITLE'=>'Public Key ID',

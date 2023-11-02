@@ -4,7 +4,7 @@ namespace AlkimAmazonPay;
 
 
 
-use AmazonPayExtendedSdk\Client\Client;
+use AmazonPayApiSdkExtension\Client\Client;
 
 class AmazonPayHelper
 {
@@ -20,7 +20,7 @@ class AmazonPayHelper
     }
 
     /**
-     * @return \AmazonPayExtendedSdk\Client\Client
+     * @return \AmazonPayApiSdkExtension\Client\Client
      */
     public function getClient()
     {

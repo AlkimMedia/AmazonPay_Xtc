@@ -54,13 +54,13 @@ while($r = xtc_db_fetch_array($rs)){
     $transactionHelper = new \AlkimAmazonPay\Helpers\TransactionHelper();
     $apiClient = $amazonPayHelper->getClient();
     $transaction = new \AlkimAmazonPay\Models\Transaction($r);
-    if($transaction->type === 'Refund' && $transaction->status === \AmazonPayExtendedSdk\Struct\StatusDetails::REFUND_INITIATED){
+    if($transaction->type === 'Refund' && $transaction->status === \AmazonPayApiSdkExtension\Struct\StatusDetails::REFUND_INITIATED){
         $refund = $apiClient->getRefund($transaction->reference);
         $transactionHelper->updateRefund($refund);
         $transaction = $transactionHelper->getTransaction($refund->getRefundId());
     }
 
-    if($transaction->type === 'Charge' && $transaction->status === \AmazonPayExtendedSdk\Struct\StatusDetails::AUTHORIZATION_INITIATED){
+    if($transaction->type === 'Charge' && $transaction->status === \AmazonPayApiSdkExtension\Struct\StatusDetails::AUTHORIZATION_INITIATED){
         $charge = $apiClient->getCharge($transaction->reference);
         $transactionHelper->updateCharge($charge);
         $transaction = $transactionHelper->getTransaction($charge->getChargeId());
@@ -73,7 +73,7 @@ while($r = xtc_db_fetch_array($rs)){
 
     if($transaction->type === 'Charge'){
         $capturedTotal += $transaction->captured_amount;
-        if($transaction->status === \AmazonPayExtendedSdk\Struct\StatusDetails::OPEN || $transaction->status === \AmazonPayExtendedSdk\Struct\StatusDetails::AUTHORIZATION_INITIATED){
+        if($transaction->status === \AmazonPayApiSdkExtension\Struct\StatusDetails::OPEN || $transaction->status === \AmazonPayApiSdkExtension\Struct\StatusDetails::AUTHORIZATION_INITIATED){
             $hasOpenCharge = true;
         }
     }
@@ -86,13 +86,13 @@ while($r = xtc_db_fetch_array($rs)){
             <td>'.($transaction->type === 'Charge'?number_format($transaction->captured_amount, 2, ',', '.').' '.$transaction->currency:'').'</td>
             <td>'.($transaction->type === 'Charge'?number_format($transaction->refunded_amount, 2, ',', '.').' '.$transaction->currency:'').'</td>
             <td>';
-    if($transaction->type === 'Charge' && $transaction->status === \AmazonPayExtendedSdk\Struct\StatusDetails::AUTHORIZED){
+    if($transaction->type === 'Charge' && $transaction->status === \AmazonPayApiSdkExtension\Struct\StatusDetails::AUTHORIZED){
         echo xtc_draw_form('amzazon_pay_capture', 'orders.php', 'oID='.$orderId.'&action=edit&amazon_pay_action=capture&charge_id='.$transaction->reference).'
                 <input type="number" name="amount" step="0.01" min="0.01" max="'.$transaction->charge_amount.'" value="'.$transaction->charge_amount.'" />
                 <button class="button">Zahlung einziehen</button>
               </form>';
     }
-    if($transaction->type === 'Charge' && $transaction->status === \AmazonPayExtendedSdk\Struct\StatusDetails::CAPTURED && round($transaction->captured_amount*1.15, 2) - $transaction->refunded_amount > 0){
+    if($transaction->type === 'Charge' && $transaction->status === \AmazonPayApiSdkExtension\Struct\StatusDetails::CAPTURED && round($transaction->captured_amount*1.15, 2) - $transaction->refunded_amount > 0){
         $amount = max($transaction->captured_amount - $transaction->refunded_amount, 0);
         $maxAmount = round($transaction->captured_amount*1.15, 2) - $transaction->refunded_amount;
         echo xtc_draw_form('amzazon_pay_refund', 'orders.php', 'oID='.$orderId.'&action=edit&amazon_pay_action=refund&charge_id='.$transaction->reference).'
@@ -107,7 +107,7 @@ while($r = xtc_db_fetch_array($rs)){
 <?php
 if($capturedTotal < $originalTotal && !$hasOpenCharge && $chargePermissionId !== null){
     $chargePermissionTransaction = $transactionHelper->getTransaction($chargePermissionId);
-    if($chargePermissionTransaction->status === \AmazonPayExtendedSdk\Struct\StatusDetails::CHARGEABLE) {
+    if($chargePermissionTransaction->status === \AmazonPayApiSdkExtension\Struct\StatusDetails::CHARGEABLE) {
         $amount = $originalTotal - $capturedTotal;
         echo '<h3>Weitere Zahlung autorisieren</h3>
               '.xtc_draw_form('amzazon_pay_authorize', 'orders.php', 'oID=' . $orderId . '&action=edit&amazon_pay_action=create_charge&charge_permission_id=' . $chargePermissionId).'

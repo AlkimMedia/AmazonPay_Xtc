@@ -1,12 +1,16 @@
 <?php
-use AlkimAmazonPay\ConfigHelper;require __DIR__ . '/includes/application_top.php';
+
+use AlkimAmazonPay\ConfigHelper;
+use AmazonPayApiSdkExtension\Client\KeyUpgradeClient;
+
+require __DIR__ . '/includes/application_top.php';
 require_once DIR_FS_CATALOG . 'includes/modules/payment/amazon_pay/amazon_pay.php';
 $configHelper = new ConfigHelper();
-if(isset($_POST['action'])){
+if (isset($_POST['action'])) {
     $action = $_POST['action'];
-}elseif(isset($_GET['action'])){
+} elseif (isset($_GET['action'])) {
     $action = $_GET['action'];
-}else{
+} else {
     $action = null;
 }
 
@@ -26,6 +30,26 @@ if ($action) {
             $configHelper->resetKey();
             xtc_redirect(xtc_href_link('amazon_pay_configuration.php'));
             break;
+        case 'key_upgrade':
+            $keyUpgradeClient = new KeyUpgradeClient();
+            try {
+                $publicKeyId = $keyUpgradeClient->fetchPublicKeyId(
+                    MODULE_PAYMENT_AM_APA_MERCHANTID,
+                    MODULE_PAYMENT_AM_APA_ACCESKEY,
+                    MODULE_PAYMENT_AM_APA_SECRETKEY,
+                    file_get_contents($configHelper->getPublicKeyPath())
+                );
+                if ($publicKeyId) {
+                    $configHelper->updateConfigurationValue('APC_PUBLIC_KEY_ID', $publicKeyId);
+                    $configHelper->updateConfigurationValue('APC_MERCHANT_ID', MODULE_PAYMENT_AM_APA_MERCHANTID);
+                    $configHelper->updateConfigurationValue('APC_CLIENT_ID', MODULE_PAYMENT_AM_APA_CLIENTID);
+                }
+                $_SESSION['amazon_pay_config_success'] = APC_KEY_UPGRADE_INFO_SUCCESS;
+            } catch (Exception $e) {
+                $_SESSION['amazon_pay_config_error'] = $e->getMessage();
+            }
+            xtc_redirect(xtc_href_link('amazon_pay_configuration.php'));
+            break;
     }
 }
 ?><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
@@ -36,87 +60,154 @@ if ($action) {
     <link rel="stylesheet" type="text/css" href="includes/stylesheet.css">
     <script type="text/javascript" src="includes/general.js"></script>
     <style>
-        .alert{
-            padding:5px;
-            margin:5px 0;
+        .alert {
+            padding: 10px;
+            margin: 5px 0;
         }
-        .alert-error{
+
+        .alert-error {
             background: #f59090;
-            border:2px solid red;
-        }
-        
-        .amz-heading{
-            background:#680f0e;
-            color:#fff;
-            padding:10px;
-            font-size:1.2em;
-            font-weight:bold;
+            border: 2px solid red;
         }
 
-        #amz-config-table td{
-            border:none !important;
+        .alert-info {
+            background: #d1e1ff;
+            border: 1px solid deepskyblue;
         }
 
-        #amz-config-table tr:nth-child(2n + 1) td{
-            background:#f4f4f4;
+        .alert-success {
+            background: #d1ffd2;
+            border: 1px solid forestgreen;
         }
-        
-        .amzConfWr input, .amzConfWr select, .amzConfWr .SumoSelect{
-            width:90% !important;
+
+        .amz-heading {
+            background: #680f0e;
+            color: #fff;
+            padding: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        #amz-config-table td {
+            border: none !important;
+        }
+
+        #amz-config-table tr:nth-child(2n + 1) td {
+            background: #f4f4f4;
+        }
+
+        .amzConfWr input, .amzConfWr select, .amzConfWr .SumoSelect {
+            width: 90% !important;
             box-sizing: border-box;
         }
 
-        .amzConfWr input, .amzConfWr select{
-            padding:5px;
+        .amzConfWr input, .amzConfWr select {
+            padding: 5px;
         }
     </style>
-</head>
-<body>
-<!-- header //-->
-<?php require(DIR_WS_INCLUDES . 'header.php'); ?>
+    </head>
+    <body>
+    <!-- header //-->
+    <?php require(DIR_WS_INCLUDES . 'header.php'); ?>
 
-<table border="0" width="100%" cellspacing="2" cellpadding="2">
-    <tr>
-        <td class="columnLeft2" width="<?php echo BOX_WIDTH; ?>" valign="top">
-            <table border="0" width="<?php echo BOX_WIDTH; ?>" cellspacing="1" cellpadding="1" class="columnLeft">
-                <!-- left_navigation //-->
-                <?php require(DIR_WS_INCLUDES . 'column_left.php'); ?>
-                <!-- left_navigation_eof //-->
-            </table>
-        </td>
-        <!-- body_text //-->
-        <td valign="top" class="amzConfWr">
-            <?php
-            if(!is_writable($configHelper->getPrivateKeyPath()) || !is_writable($configHelper->getPublicKeyPath()) || !is_writable(dirname($configHelper->getPublicKeyPath()))){
-                ?>
+    <table border="0" width="100%" cellspacing="2" cellpadding="2">
+        <tr>
+            <td class="columnLeft2" width="<?php echo BOX_WIDTH; ?>" valign="top">
+                <table border="0" width="<?php echo BOX_WIDTH; ?>" cellspacing="1" cellpadding="1" class="columnLeft">
+                    <!-- left_navigation //-->
+                    <?php require(DIR_WS_INCLUDES . 'column_left.php'); ?>
+                    <!-- left_navigation_eof //-->
+                </table>
+            </td>
+            <!-- body_text //-->
+            <td valign="top" class="amzConfWr">
+                <?php
+                if (!is_writable($configHelper->getPrivateKeyPath()) || !is_writable($configHelper->getPublicKeyPath()) || !is_writable(dirname($configHelper->getPublicKeyPath()))) {
+                    ?>
                     <div class="alert alert-error main">
-                        Die Schreibrechte f&uuml;r das Schl&uuml;sselverzeichnis unter <?php echo dirname($configHelper->getPublicKeyPath());?> sind nicht ausreichend. Bitte setzen Sie die Rechte so, dass der Webserver auf das Verzeichnis und die beinhalteten Dateien vollen Zugriff hat.
+                        Die Schreibrechte f&uuml;r das Schl&uuml;sselverzeichnis
+                        unter <?php echo dirname($configHelper->getPublicKeyPath()); ?> sind nicht ausreichend. Bitte
+                        setzen Sie die Rechte so, dass der Webserver auf das Verzeichnis und die beinhalteten Dateien
+                        vollen Zugriff hat.
                     </div>
-                <?php
-            }
+                    <?php
+                }
 
-            if(!is_writable(DIR_FS_CATALOG.'includes/modules/payment/amazon_pay/logs')){
+                if (!is_writable(DIR_FS_CATALOG . 'includes/modules/payment/amazon_pay/logs')) {
+                    ?>
+                    <div class="alert alert-error main">
+                        Die Schreibrechte f&uuml;r das Logverzeichnis unter includes/modules/payment/amazon_pay/logs
+                        sind nicht ausreichend. Bitte setzen Sie die Rechte so, dass der Webserver auf das Verzeichnis
+                        und die beinhalteten Dateien vollen Zugriff hat.
+                    </div>
+                    <?php
+                }
+
                 ?>
-                <div class="alert alert-error main">
-                    Die Schreibrechte f&uuml;r das Logverzeichnis unter includes/modules/payment/amazon_pay/logs sind nicht ausreichend. Bitte setzen Sie die Rechte so, dass der Webserver auf das Verzeichnis und die beinhalteten Dateien vollen Zugriff hat.
-                </div>
-                <?php
-            }
-
-            ?>
-            <?php echo xtc_draw_form('configuration', 'amazon_pay_configuration.php'); ?>
+                <?php echo xtc_draw_form('configuration', 'amazon_pay_configuration.php'); ?>
                 <input type="hidden" name="action" value="save_amazon_pay_configuration"/>
+                <?php
+                if (defined('APC_PUBLIC_KEY_ID') && APC_PUBLIC_KEY_ID === '' && APC_MERCHANT_ID === '') {
+                    $keyUpgradeConstants = [
+                        'MODULE_PAYMENT_AM_APA_SECRETKEY',
+                        'MODULE_PAYMENT_AM_APA_MERCHANTID',
+                        'MODULE_PAYMENT_AM_APA_ACCESKEY',
+                    ];
+                    $isKeyUpgradePossible = true;
+                    foreach ($keyUpgradeConstants as $key) {
+                        if (!defined($key) || constant($key) === '') {
+                            $isKeyUpgradePossible = false;
+                            break;
+                        }
+                    }
+                    if ($isKeyUpgradePossible) {
+                        ?>
+                        <div class="alert alert-info main">
+                            <?php echo APC_KEY_UPGRADE_INFO; ?>
+                            <div>
+                                <a href="<?php echo xtc_href_link('amazon_pay_configuration.php', 'action=key_upgrade', 'SSL'); ?>" class="button amzButton">
+                                    <?php echo APC_KEY_UPGRADE_BUTTON_CAPTION; ?>
+                                </a>
+                            </div>
+                        </div>
+                        <?php
+                    }
+                }
+
+                if(!empty($_SESSION['amazon_pay_config_success'])){
+                    ?>
+                    <div class="alert alert-success main">
+                        <?php echo $_SESSION['amazon_pay_config_success']; ?>
+                    </div>
+                    <?php
+                    unset($_SESSION['amazon_pay_config_success']);
+                }
+                ?>
+                <?php
+                if(!empty($_SESSION['amazon_pay_config_error'])){
+                    ?>
+                    <div class="alert alert-error main">
+                        <?php echo $_SESSION['amazon_pay_config_error']; ?>
+                    </div>
+                    <?php
+                    unset($_SESSION['amazon_pay_config_error']);
+                }
+                ?>
+
+
                 <table width="100%" border="0" cellspacing="0" cellpadding="8" class="configurationTable main" id="amz-config-table">
                     <?php
                     $configHelper = new ConfigHelper();
                     foreach ($configHelper->getConfigurationFields() as $field => $fieldInfo) {
-                        if($fieldInfo['type'] === ConfigHelper::FIELD_TYPE_HEADING){
+                        if ($fieldInfo['type'] === ConfigHelper::FIELD_TYPE_HEADING) {
                             ?>
                             <tr>
-                                <td style="padding:0;" colspan="3"><div class="amz-heading"><?php echo constant($field . '_TITLE'); ?></div></td>
+                                <td style="padding:0;" colspan="3">
+                                    <div class="amz-heading"><?php echo constant($field . '_TITLE'); ?></div>
+                                </td>
                             </tr>
                             <?php
-                        }else{
+                        } else {
                             ?>
                             <tr>
                                 <td class="dataTableContent"><b><?php echo constant($field . '_TITLE'); ?></b></td>
@@ -135,7 +226,7 @@ if ($action) {
                                             echo $fieldInfo['value'];
                                             break;
                                         case ConfigHelper::FIELD_TYPE_STATUS:
-                                            echo renderStatusSelectField($field, $fieldInfo['options']);
+                                            echo renderStatusSelectField($field, isset($fieldInfo['options']) ? $fieldInfo['options'] : null);
                                             break;
                                     }
                                     ?></td>
@@ -171,24 +262,18 @@ if ($action) {
                     ?>
                 </table>
                 <button type="submit" class="amzButton" onclick="this.blur();">Speichern</button>
-            </form>
+                </form>
 
-        </td>
-        <!-- body_text_eof //-->
-    </tr>
-</table>
-<!-- body_eof //-->
-<!-- footer //-->
-<?php
-if ($_GET["mode"] != 'excludeProducts') {
-    require(DIR_WS_INCLUDES . 'footer.php');
-} else {
-    echo '</div>';
-}
-?>
-<!-- footer_eof //-->
-</body>
-</html>
+            </td>
+            <!-- body_text_eof //-->
+        </tr>
+    </table>
+    <!-- body_eof //-->
+    <!-- footer //-->
+    </div>
+    <!-- footer_eof //-->
+    </body>
+    </html>
 <?php require(DIR_WS_INCLUDES . 'application_bottom.php');
 
 function renderAuthorizationSelect($name, $value, $params = '')

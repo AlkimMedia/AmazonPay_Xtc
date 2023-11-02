@@ -3,18 +3,20 @@
 
     namespace Amazon\Pay\API;
 
-    use phpseclib\Crypt\RSA;
+    use phpseclib3\Crypt\RSA;
 
     require_once 'ClientInterface.php';
+    require_once 'ReportingClientInterface.php';
     require_once 'HttpCurl.php';
  
-    class Client implements ClientInterface
+    class Client implements ClientInterface, ReportingClientInterface, MerchantOnboardingClientInterface
     {
-        const SDK_VERSION = '2.1.0';
+        const SDK_VERSION = '2.6.4';
+        const SDK_LANGUAGE = 'PHP';
         const HASH_ALGORITHM = 'sha256';
-        const AMAZON_SIGNATURE_ALGORITHM = 'AMZN-PAY-RSASSA-PSS';
         const API_VERSION = 'v2';
-
+        const ACCOUNT_MANAGEMENT = '/merchantAccounts';
+        
         private $config = array();
 
         private $apiServiceUrls = array(
@@ -37,6 +39,8 @@
                     throw new \Exception('$config is of the incorrect type ' . gettype($config) . ' and should be of the type array');
                 }
 
+                //V2 Algorithm accepts only 'eu', 'na' and 'jp' as region
+                $config['region'] =  $this->regionMappings[strtolower($config['region'])];
                 $this->config = $config;
 
                 if (!empty($config['sandbox'])) {
@@ -63,6 +67,19 @@
             }
         }
 
+        /* Get signature algorithm from config, use AMZN-PAY-RSASSA-PSS by default if not specified */
+        private function getAlgorithm() {
+            if (!empty($this->config['algorithm'])) {
+                if ($this->config['algorithm'] === 'AMZN-PAY-RSASSA-PSS' || $this->config['algorithm'] === 'AMZN-PAY-RSASSA-PSS-V2') {
+                    return $this->config['algorithm'];
+                } else {
+                    throw  new \Exception($this->config['algorithm'] . ' is not a valid algorithm');
+                }
+            } else {
+                return 'AMZN-PAY-RSASSA-PSS';
+            }
+        }
+
         /* Create API service URL and the Endpoint path */
         private function createServiceUrl()
         {
@@ -80,7 +97,9 @@
                     } else {
                         $apiEndpointUrl  = $this->apiServiceUrls[$this->regionMappings[$region]];
                     }
-
+                    if($this->isEnvSpecificPublicKeyId()){
+                        return 'https://' . $apiEndpointUrl . '/';
+                    } 
                     return 'https://' . $apiEndpointUrl . '/' . $modePath . '/';
                 } else {
                     throw new \Exception($region . ' is not a valid region');
@@ -88,6 +107,18 @@
             } else {
                 throw new \Exception("config['region'] is a required parameter and is not set");
             }
+        }
+        
+        // Method used to validate whether PublicKeyId starts with prefix LIVE or SANDBOX
+        private function isEnvSpecificPublicKeyId() {
+            return $this->startsWith($this->config['public_key_id'], 'LIVE') || $this->startsWith($this->config['public_key_id'], 'SANDBOX');
+        }
+
+        // Method used to validate whether String starts with Prefix or not
+        private function startsWith($string, $prefix)
+        {   
+            $length = strlen($prefix);
+            return (substr(strtoupper($string), 0, $length) === $prefix);
         }
 
         /* canonicalURI
@@ -98,7 +129,7 @@
         */
         private function getCanonicalURI($unEncodedURI)
         {
-            if ($unEncodedURI == '') {
+            if ($unEncodedURI === '') {
                 return '/';
             }
             $urlArray = parse_url($unEncodedURI);
@@ -121,13 +152,13 @@
             $sortedCanonicalArray = array();
             foreach ($canonicalArray as $key => $val) {
                 if (is_array($val)) {
-                    foreach ($this->subArrays($val, "$key") as $newKey => $subVal) {
-                        $sortedCanonicalArray["$newKey"] = $subVal;
+                    foreach ($this->subArrays($val, $key) as $newKey => $subVal) {
+                        $sortedCanonicalArray[$newKey] = $subVal;
                     }
                 }
-                else if ((is_null($val)) || ($val == '')) {}
+                else if ((is_null($val)) || ($val === '')) {}
                 else {
-                    $sortedCanonicalArray["$key"] = $val;
+                    $sortedCanonicalArray[$key] = $val;
                 }
             }
             ksort($sortedCanonicalArray);
@@ -135,12 +166,12 @@
             return $sortedCanonicalArray;
         }
 
-        /* subArrays - helper function used to break out arays in an array */
-        private function subArrays($parameters, $catagory)
+        /* subArrays - helper function used to break out arrays in an array */
+        private function subArrays($parameters, $category)
         {
             $categoryIndex = 0;
             $newParameters = array();
-            $categoryString = "$catagory.";
+            $categoryString = "$category.";
             foreach ($parameters as $value) {
                 $categoryIndex++;
                 $newParameters[$categoryString . $categoryIndex] = $value;
@@ -158,7 +189,7 @@
             return $this->getParametersAsString($sortedRequestParameters);
         }
 
-        /* Convert paremeters to Url encoded query string */
+        /* Convert parameters to Url encoded query string */
         private function getParametersAsString(array $parameters)
         {
             $queryParameters = array();
@@ -177,7 +208,7 @@
         private function hexAndHash($data)
         {
             $hash = self::HASH_ALGORITHM;
-            return bin2hex(hash($hash, $data, true));
+            return bin2hex(hash($hash, isset($data) ? $data : '', true));
         }
     
         /* Formats date as ISO 8601 timestamp */
@@ -190,9 +221,9 @@
         {
             $sortedCanonicalArray = array();
             foreach ($headers as $key => $val) {
-                if ((is_null($val)) || ($val == '')) {}
+                if ((is_null($val)) || ($val === '')) {}
                 else {
-                    $sortedCanonicalArray[strtolower("$key")] = $val;
+                    $sortedCanonicalArray[strtolower($key)] = $val;
                 }
             }
             ksort($sortedCanonicalArray);
@@ -210,9 +241,7 @@
                 $parameters[] = $key;
             }
             ksort($parameters);
-            $headerNames = implode(';', $parameters);
-
-            return $headerNames;
+            return implode(';', $parameters);
         }
 
         /* getHost
@@ -220,7 +249,7 @@
         */
         private function getHost($unEncodedURI)
         {
-            if ($unEncodedURI == '') {
+            if ($unEncodedURI === '') {
                 return '/';
             }
 
@@ -274,7 +303,7 @@
         }
 
         /* stringFromArray - helper function used to check if parameters is an array. 
-        *  If it is array it returns all the values as a string
+        *  If it is an array it returns all the values as a string
         *  Otherwise it returns parameters
         */
         private function stringFromArray($parameters)
@@ -288,7 +317,7 @@
         }
 
         /* Create the User Agent Header sent with the POST request */
-        /* Protected because of PSP module usaged */
+        /* Protected because of PSP module usage */
         protected function constructUserAgentHeader()
         {
             return 'amazon-pay-api-sdk-php/' . self::SDK_VERSION . ' ('
@@ -296,30 +325,8 @@
                 . php_uname('s') . '/' . php_uname('m') . '/' . php_uname('r') . ')';
         }
 
-        /* checkForPaymentCriticalDataAPI - Takes the request uri and request payload, checks for
-        API names and modifies the payload if needed
-        @param $request_uri [String]
-        @param $http_request_method [String]
-        @param $request_payload [String]
-        */
-        private function checkForPaymentCriticalDataAPI($request_uri, $http_request_method, $request_payload) {
-            $paymentCriticalDataAPIs = array('/live/account-management/' . self::API_VERSION . '/accounts', '/sandbox/account-management/' . self::API_VERSION . '/accounts');
-            $allowedHttpMethods = array('POST', 'PUT', 'PATCH');
-
-            // For APIs handling payment critical data, the payload shouldn't be
-            // considered in the signature calculation
-            foreach($paymentCriticalDataAPIs as $api) {
-                if (strpos($request_uri, $api) !== false && in_array($http_request_method, $allowedHttpMethods)) {
-                    return '';
-                }
-            }
-            return $request_payload;
-        }
-
         public function getPostSignedHeaders($http_request_method, $request_uri, $request_parameters, $request_payload, $other_presigned_headers = null)
         {
-            $request_payload = $this->checkForPaymentCriticalDataAPI($request_uri, $http_request_method, $request_payload);
-
             $preSignedHeaders = array();
             $preSignedHeaders['accept'] = 'application/json';
             $preSignedHeaders['content-type'] = 'application/json';
@@ -328,7 +335,7 @@
             // Header x-amz-pay-idempotency-key is a special user-supplied header that must be pre-signed if used
             if (isset($other_presigned_headers)) {
                 foreach ($other_presigned_headers as $key => $val) {
-                    if (strtolower($key) == 'x-amz-pay-idempotency-key') {
+                    if (strtolower($key) === 'x-amz-pay-idempotency-key') {
                         if (isset($val) && ($val !== '')) {
                             $preSignedHeaders['x-amz-pay-idempotency-key'] = $val;
                         }
@@ -352,9 +359,24 @@
                 'x-amz-pay-host' => $this->getHost($request_uri),
                 'x-amz-pay-date' => $timeStamp,
                 'x-amz-pay-region' => $this->config['region'],
-                'authorization' => self::AMAZON_SIGNATURE_ALGORITHM . " PublicKeyId=" . $public_key_id . ", " . $signedHeaders,
+                'x-amz-pay-sdk-type' => self::SDK_LANGUAGE,
+                'x-amz-pay-sdk-version' => self::SDK_VERSION,
+                'x-amz-pay-language-version' => PHP_VERSION,
+                'authorization' => $this->getAlgorithm() . " PublicKeyId=" . $public_key_id . ", " . $signedHeaders,
                 'user-agent' => $this->constructUserAgentHeader()
             );
+
+            if(isset($this->config['integrator_id'])){
+                $headerArray['x-amz-pay-integrator-id'] = $this->config['integrator_id'];
+            }
+
+            if(isset($this->config['integrator_version'])){
+                $headerArray['x-amz-pay-integrator-version'] = $this->config['integrator_version'];
+            }
+
+            if(isset($this->config['platform_version'])){
+                $headerArray['x-amz-pay-platform-version'] = $this->config['platform_version'];
+            }
 
             ksort($headerArray);
             foreach ($headerArray as $key => $value) {
@@ -386,7 +408,7 @@
                 $hashedPayload
             );
 
-            $hashedCanonicalRequest = self::AMAZON_SIGNATURE_ALGORITHM . "\n" . $this->hexAndHash($canonicalRequest);
+            $hashedCanonicalRequest = $this->getAlgorithm() . "\n" . $this->hexAndHash($canonicalRequest);
 
             $signature = $rsa->sign($hashedCanonicalRequest);
             if ($signature === false) {
@@ -409,8 +431,7 @@
 
             // stripcslashes function is used on payload to unescape sequences like http:\/\/ to http://
             // and \"hello\" to "hello"
-            $hashedButtonRequest = self::AMAZON_SIGNATURE_ALGORITHM . "\n" . $this->hexAndHash(stripcslashes($payload));
-
+            $hashedButtonRequest = $this->getAlgorithm() . "\n" . $this->hexAndHash(isset($payload) ? stripcslashes($payload) : '');
             $signature = $rsa->sign($hashedButtonRequest);
             if ($signature === false) {
                 throw new \Exception('Unable to sign request, is your RSA private key valid?');
@@ -421,23 +442,17 @@
 
 
         private function setupRSA() {
-            $rsa = new RSA();
-            $rsa->setHash(self::HASH_ALGORITHM);
-            $rsa->setMGFHash(self::HASH_ALGORITHM);
-            $rsa->setSaltLength(20);
-
             $key_spec = $this->config['private_key'];
-
+            $salt_length = $this->getAlgorithm() === 'AMZN-PAY-RSASSA-PSS' ? 20 : 32;
             if ((strpos($key_spec, 'BEGIN RSA PRIVATE KEY') === false) && (strpos($key_spec, 'BEGIN PRIVATE KEY') === false)) {
                 $contents = file_get_contents($key_spec);
                 if ($contents === false) {
                     throw new \Exception('Unable to load file: ' . $key_spec);
                 }
-                $rsa->loadKey($contents);
+                $rsa = RSA::loadPrivateKey($contents)->withSaltLength($salt_length);
             } else {
-                $rsa->loadKey($key_spec);
+                $rsa = RSA::loadPrivateKey($key_spec)->withSaltLength($salt_length);
             }
-
             return $rsa;
         }
 
@@ -456,9 +471,29 @@
             return true;
         }
 
+        private function enhanceResponseWithShippingAddressList( &$response ) {
+            $responsePayload = json_decode($response['response'], true);
+
+            if(isset($responsePayload['shippingAddressList'])) {
+                $responsePayload['shippingAddressList'] = array_map(function ($shippingAddress) {
+                    return json_decode($shippingAddress, true);
+                }, $responsePayload['shippingAddressList']);
+                $response['response'] = json_encode($responsePayload, JSON_UNESCAPED_UNICODE);
+            }
+
+            return $response;
+        }
 
         public function apiCall($method, $urlFragment, $payload, $headers = null, $queryParams = null) {
             if (is_array($payload)) {
+
+                // json_encode will fail if non-UTF-8 encodings are present, need to convert them to UTF-8
+                array_walk_recursive($payload, function (&$item) {
+                    if (is_string($item) && mb_detect_encoding($item, 'UTF-8', true) === false) {
+                        $item = utf8_encode($item);
+                    }
+                });
+
                 $payload = json_encode($payload);
             }
 
@@ -483,9 +518,8 @@
                 }
             }
 
-            $httpCurlRequest = new HttpCurl();
-            $response = $httpCurlRequest->invokeCurl($method, $url, $payload, $postSignedHeaders);
-            return $response;
+            $httpCurlRequest = new HttpCurl(isset($this->config['proxy']) ? $this->config['proxy'] : []);
+            return $httpCurlRequest->invokeCurl($method, $url, $payload, $postSignedHeaders);
         }
 
         /* Setter for sandbox
@@ -544,27 +578,35 @@
 
         // ----------------------------------- Amazon Checkout v2 API -----------------------------------
 
+
+        public function getBuyer($buyerToken, $headers = null) {
+            return $this->apiCall('GET', self::API_VERSION . '/buyers/' . $buyerToken, null, $headers);
+        }
+
         public function createCheckoutSession($payload, $headers)
         {
-            return $this->apiCall('POST', self::API_VERSION . '/checkoutSessions/', $payload, $headers);
+            return $this->apiCall('POST', self::API_VERSION . '/checkoutSessions', $payload, $headers);
         }
 
 
         public function getCheckoutSession($checkoutSessionId, $headers = null)
         {
-            return $this->apiCall('GET', self::API_VERSION . '/checkoutSessions/' . $checkoutSessionId, null, $headers);
+            $response = $this->apiCall('GET', self::API_VERSION . '/checkoutSessions/' . $checkoutSessionId, null, $headers);
+            return $this->enhanceResponseWithShippingAddressList($response);
         }
 
 
         public function updateCheckoutSession($checkoutSessionId, $payload, $headers = null)
         {
-            return $this->apiCall('PATCH', self::API_VERSION . '/checkoutSessions/' . $checkoutSessionId, $payload, $headers);
+            $response = $this->apiCall('PATCH', self::API_VERSION . '/checkoutSessions/' . $checkoutSessionId, $payload, $headers);
+            return $this->enhanceResponseWithShippingAddressList($response);
         }
 
 
         public function completeCheckoutSession($checkoutSessionId, $payload, $headers = null)
         {
-            return $this->apiCall('POST', self::API_VERSION . '/checkoutSessions/' . $checkoutSessionId . '/complete', $payload, $headers);
+            $response =  $this->apiCall('POST', self::API_VERSION . '/checkoutSessions/' . $checkoutSessionId . '/complete', $payload, $headers);
+            return $this->enhanceResponseWithShippingAddressList($response);
         }
 
 
@@ -584,9 +626,7 @@
         {
             return $this->apiCall('DELETE', self::API_VERSION . '/chargePermissions/' . $chargePermissionId . '/close', $payload, $headers);
         }
-        public function getBuyer($buyerToken, $headers = null) {
-            return $this->apiCall('GET', self::API_VERSION . '/buyers/' . $buyerToken, null, $headers);
-        }
+
 
         public function createCharge($payload, $headers)
         {
@@ -623,5 +663,79 @@
             return $this->apiCall('GET', self::API_VERSION . '/refunds/' . $refundId, null, $headers);
         }
 
+        // ----------------------------------- CV2 REPORTING APIS -----------------------------------
+ 
+ 
+        public function getReports($queryParameters = null, $headers = null)
+        {
+            return $this->apiCall('GET', self::API_VERSION . '/reports', null, $headers, $queryParameters);
+        }
+ 
+ 
+        public function getReportById($reportId, $headers = null)
+        {
+            return $this->apiCall('GET', self::API_VERSION . '/reports/' . $reportId, null, $headers);
+        }
+ 
+ 
+        public function getReportDocument($reportDocumentId, $headers = null)
+        {
+            return $this->apiCall('GET', self::API_VERSION . '/report-documents/' . $reportDocumentId, null, $headers);
+        }
+ 
+ 
+        public function getReportSchedules($reportTypes = null, $headers = null)
+        {
+            $queryParameters = array('reportTypes' => $reportTypes);
+            return $this->apiCall('GET', self::API_VERSION . '/report-schedules', null, $headers, $queryParameters);
+        }
+ 
+ 
+        public function getReportScheduleById($reportScheduleId, $headers = null)
+        {
+            return $this->apiCall('GET', self::API_VERSION . '/report-schedules/' . $reportScheduleId, null, $headers);
+        }
+ 
+ 
+        public function createReport($requestPayload, $headers = null)
+        {
+            return $this->apiCall('POST', self::API_VERSION . '/reports' , $requestPayload, $headers);
+        }
+ 
+ 
+        public function createReportSchedule($requestPayload, $headers = null)
+        {
+            return $this->apiCall('POST', self::API_VERSION . '/report-schedules' , $requestPayload, $headers);
+        }
+ 
+ 
+        public function cancelReportSchedule($reportScheduleId, $headers = null) 
+        {
+            return $this->apiCall('DELETE', self::API_VERSION . '/report-schedules/' . $reportScheduleId, null, $headers);
+        }
+
+        /*
+        * FinalizeCheckoutSession API which enables Pay to validate payment critical attributes and also update book-keeping attributes present in merchantMetadata 
+        */
+        public function finalizeCheckoutSession($checkoutSessionId, $payload, $headers = null)
+        {
+            return $this->apicall('POST', self::API_VERSION . '/checkoutSessions/' . $checkoutSessionId . '/finalize', $payload , $headers);
+        }
+
+        // ----------------------------------- Merchant Onboarding & Account Management APIs -----------------------------------
+
+        public function registerAmazonPayAccount($payload, $headers = null)
+        {
+            return $this->apiCall('POST', self::API_VERSION . self::ACCOUNT_MANAGEMENT, $payload, $headers);
+        }
+
+        public function updateAmazonPayAccount($merchantAccountId, $payload, $headers = null)
+        {
+            return $this->apiCall('PATCH', self::API_VERSION . self::ACCOUNT_MANAGEMENT . '/' . $merchantAccountId, $payload, $headers);
+        }
+
+        public function deleteAmazonPayAccount($merchantAccountId, $headers = null)
+        {
+            return $this->apiCall('DELETE', self::API_VERSION . self::ACCOUNT_MANAGEMENT . '/' . $merchantAccountId, null, $headers);
+        }
     }
-?>

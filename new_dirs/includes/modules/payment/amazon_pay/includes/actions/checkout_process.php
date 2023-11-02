@@ -19,14 +19,14 @@ if (!$checkoutSession || !$checkoutSession->getCheckoutSessionId()) {
 }
 \AlkimAmazonPay\GeneralHelper::log('debug', 'checkout_process CheckoutSession', [$checkoutSession->toArray()]);
 
-if ($checkoutSession->getStatusDetails()->getState() === \AmazonPayExtendedSdk\Struct\StatusDetails::OPEN) {
+if ($checkoutSession->getStatusDetails()->getState() === \AmazonPayApiSdkExtension\Struct\StatusDetails::OPEN) {
     if ($checkoutSession->getWebCheckoutDetails()->getAmazonPayRedirectUrl() && !$checkoutSession->getConstraints()) {
         //do checkout
     } else {
         $checkoutHelper->doUpdateCheckoutSessionBeforeCheckoutProcess($checkoutSession);
     }
 } else {
-    if ($checkoutSession->getStatusDetails()->getState() === \AmazonPayExtendedSdk\Struct\StatusDetails::CANCELED) {
+    if ($checkoutSession->getStatusDetails()->getState() === \AmazonPayApiSdkExtension\Struct\StatusDetails::CANCELED) {
         \AlkimAmazonPay\GeneralHelper::log('debug', 'amazon pay payment cancelled', $checkoutSession->toArray());
         $checkoutHelper->defaultErrorHandling();
     } else {

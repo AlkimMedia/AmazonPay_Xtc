@@ -4,7 +4,7 @@ namespace AlkimAmazonPay;
 
 use AlkimAmazonPay\Helpers\TransactionHelper;
 use AlkimAmazonPay\Models\Transaction;
-use AmazonPayExtendedSdk\Struct\StatusDetails;
+use AmazonPayApiSdkExtension\Struct\StatusDetails;
 
 class OrderHelper
 {
@@ -41,8 +41,8 @@ class OrderHelper
                 $chargeTransaction = new Transaction($r);
                 $originalCharge    = $apiClient->getCharge($chargeTransaction->reference);
 
-                $captureCharge = new \AmazonPayExtendedSdk\Struct\Charge();
-                $amount        = new \AmazonPayExtendedSdk\Struct\CaptureAmount($originalCharge->getChargeAmount()->toArray());
+                $captureCharge = new \AmazonPayApiSdkExtension\Struct\Charge();
+                $amount        = new \AmazonPayApiSdkExtension\Struct\CaptureAmount($originalCharge->getChargeAmount()->toArray());
                 $captureCharge->setCaptureAmount($amount);
                 $captureCharge = $apiClient->captureCharge($originalCharge->getChargeId(), $captureCharge);
                 $transactionHelper->updateCharge($captureCharge);

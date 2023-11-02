@@ -1,42 +1,86 @@
-<?php return array (
-  'root' => 
-  array (
-    'pretty_version' => '1.0.0+no-version-set',
-    'version' => '1.0.0.0',
-    'aliases' => 
-    array (
+<?php return array(
+    'root' => array(
+        'pretty_version' => '1.0.0+no-version-set',
+        'version' => '1.0.0.0',
+        'type' => 'library',
+        'install_path' => __DIR__ . '/../../',
+        'aliases' => array(),
+        'reference' => NULL,
+        'name' => '__root__',
+        'dev' => true,
     ),
-    'reference' => NULL,
-    'name' => '__root__',
-  ),
-  'versions' => 
-  array (
-    '__root__' => 
-    array (
-      'pretty_version' => '1.0.0+no-version-set',
-      'version' => '1.0.0.0',
-      'aliases' => 
-      array (
-      ),
-      'reference' => NULL,
+    'versions' => array(
+        '__root__' => array(
+            'pretty_version' => '1.0.0+no-version-set',
+            'version' => '1.0.0.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../../',
+            'aliases' => array(),
+            'reference' => NULL,
+            'dev_requirement' => false,
+        ),
+        'amzn/amazon-pay-api-sdk-php' => array(
+            'pretty_version' => '2.6.4',
+            'version' => '2.6.4.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../amzn/amazon-pay-api-sdk-php',
+            'aliases' => array(),
+            'reference' => '3adb8d2641803d96fe0228ea1fcc22e717b6277f',
+            'dev_requirement' => false,
+        ),
+        'aws/aws-php-sns-message-validator' => array(
+            'pretty_version' => '1.8.0',
+            'version' => '1.8.0.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../aws/aws-php-sns-message-validator',
+            'aliases' => array(),
+            'reference' => 'ea20e69fe15139540c6f20ff7c61ed48b9804bfd',
+            'dev_requirement' => false,
+        ),
+        'mkreusch/amazon-pay-api-sdk-php-extension' => array(
+            'pretty_version' => '0.6.0',
+            'version' => '0.6.0.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../mkreusch/amazon-pay-api-sdk-php-extension',
+            'aliases' => array(),
+            'reference' => '5744db0dbe213fccc9a993baa3424dbfd488d577',
+            'dev_requirement' => false,
+        ),
+        'paragonie/constant_time_encoding' => array(
+            'pretty_version' => 'v1.1.0',
+            'version' => '1.1.0.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../paragonie/constant_time_encoding',
+            'aliases' => array(),
+            'reference' => '317718fb438e60151f72b20404f040cb5ae1d494',
+            'dev_requirement' => false,
+        ),
+        'paragonie/random_compat' => array(
+            'pretty_version' => 'v2.0.21',
+            'version' => '2.0.21.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../paragonie/random_compat',
+            'aliases' => array(),
+            'reference' => '96c132c7f2f7bc3230723b66e89f8f150b29d5ae',
+            'dev_requirement' => false,
+        ),
+        'phpseclib/phpseclib' => array(
+            'pretty_version' => '3.0.33',
+            'version' => '3.0.33.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../phpseclib/phpseclib',
+            'aliases' => array(),
+            'reference' => '33fa69b2514a61138dd48e7a49f99445711e0ad0',
+            'dev_requirement' => false,
+        ),
+        'psr/http-message' => array(
+            'pretty_version' => '1.0',
+            'version' => '1.0.0.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../psr/http-message',
+            'aliases' => array(),
+            'reference' => '85d63699f0dbedb190bbd4b0d2b9dc707ea4c298',
+            'dev_requirement' => false,
+        ),
     ),
-    'amzn/amazon-pay-api-sdk-php' => 
-    array (
-      'pretty_version' => '2.2.3',
-      'version' => '2.2.3.0',
-      'aliases' => 
-      array (
-      ),
-      'reference' => '9ee7377ebdd407c0daae08bcaa6fe1661a24fbc8',
-    ),
-    'phpseclib/phpseclib' => 
-    array (
-      'pretty_version' => '2.0.31',
-      'version' => '2.0.31.0',
-      'aliases' => 
-      array (
-      ),
-      'reference' => '233a920cb38636a43b18d428f9a8db1f0a1a08f4',
-    ),
-  ),
 );

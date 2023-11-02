@@ -2,7 +2,7 @@
 
 namespace AlkimAmazonPay;
 
-use AmazonPayExtendedSdk\Struct\Address;
+use AmazonPayApiSdkExtension\Struct\Address;
 
 class AccountHelper
 {

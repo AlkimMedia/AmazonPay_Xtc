@@ -2,13 +2,13 @@
 
 namespace AlkimAmazonPay;
 
-use AmazonPayExtendedSdk\Struct\AddressRestrictions;
-use AmazonPayExtendedSdk\Struct\CheckoutSession;
-use AmazonPayExtendedSdk\Struct\DeliverySpecifications;
-use AmazonPayExtendedSdk\Struct\MerchantMetadata;
-use AmazonPayExtendedSdk\Struct\PaymentDetails;
-use AmazonPayExtendedSdk\Struct\Price;
-use AmazonPayExtendedSdk\Struct\WebCheckoutDetails;
+use AmazonPayApiSdkExtension\Struct\AddressRestrictions;
+use AmazonPayApiSdkExtension\Struct\CheckoutSession;
+use AmazonPayApiSdkExtension\Struct\DeliverySpecifications;
+use AmazonPayApiSdkExtension\Struct\MerchantMetadata;
+use AmazonPayApiSdkExtension\Struct\PaymentDetails;
+use AmazonPayApiSdkExtension\Struct\Price;
+use AmazonPayApiSdkExtension\Struct\WebCheckoutDetails;
 use order;
 use order_total;
 use shipping;
@@ -33,8 +33,13 @@ class CheckoutHelper
     public function createCheckoutSession()
     {
         try {
+            $storeName = STORE_NAME;
+            $encoding = mb_detect_encoding($storeName, ['UTF-8', 'ISO-8859-1', 'ISO-8859-2', 'ISO-8859-15']);
+            if($encoding !== 'UTF-8'){
+                $storeName = mb_convert_encoding($storeName, 'UTF-8', $encoding);
+            }
+            $storeName = (mb_strlen($storeName) <= 50) ? $storeName : (mb_substr($storeName, 0, 47) . '...');
 
-            $storeName = (strlen(STORE_NAME) <= 50) ? STORE_NAME : (substr(STORE_NAME, 0, 47) . '...');
             $merchantData = new MerchantMetadata();
             $merchantData->setMerchantStoreName($storeName);
             $merchantData->setCustomInformation($this->configHelper->getCustomInformationString());

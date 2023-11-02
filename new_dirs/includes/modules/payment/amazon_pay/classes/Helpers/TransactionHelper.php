@@ -7,12 +7,12 @@ use AlkimAmazonPay\ConfigHelper;
 use AlkimAmazonPay\GeneralHelper;
 use AlkimAmazonPay\Models\Transaction;
 use AlkimAmazonPay\OrderHelper;
-use AmazonPayExtendedSdk\Struct\CaptureAmount;
-use AmazonPayExtendedSdk\Struct\Charge;
-use AmazonPayExtendedSdk\Struct\ChargePermission;
-use AmazonPayExtendedSdk\Struct\CheckoutSession;
-use AmazonPayExtendedSdk\Struct\Refund;
-use AmazonPayExtendedSdk\Struct\StatusDetails;
+use AmazonPayApiSdkExtension\Struct\CaptureAmount;
+use AmazonPayApiSdkExtension\Struct\Charge;
+use AmazonPayApiSdkExtension\Struct\ChargePermission;
+use AmazonPayApiSdkExtension\Struct\CheckoutSession;
+use AmazonPayApiSdkExtension\Struct\Refund;
+use AmazonPayApiSdkExtension\Struct\StatusDetails;
 use Exception;
 
 class TransactionHelper
