@@ -9,6 +9,12 @@ if (!empty($_GET['amazonCheckoutSessionId'])) {
     $checkoutSessionId                   = $_GET['amazonCheckoutSessionId'];
     $_SESSION['amazon_checkout_session'] = $checkoutSessionId;
     $checkoutSession                     = $checkoutHelper->getCheckoutSession($checkoutSessionId);
+
+    if (!$checkoutSession || !$checkoutSession->getCheckoutSessionId()) {
+        \AlkimAmazonPay\GeneralHelper::log('warning', 'invalid amazon checkout session id on checkout_shipping', [$_SESSION['amazon_checkout_session'], $checkoutSession]);
+        xtc_redirect(xtc_href_link(FILENAME_SHOPPING_CART));
+    }
+    
     $needsMainAddress                    = false;
     if (!$accountHelper->isLoggedIn()) {
         if(!$checkoutSession->getBuyer()){
